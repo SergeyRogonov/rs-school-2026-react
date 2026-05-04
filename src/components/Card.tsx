@@ -13,7 +13,7 @@ class Card extends React.Component<CardProps> {
       <div className="flex flex-row w-3xs rounded-md border-2 border-black p-2">
         <div className="flex flex-col w-full gap-1">
           <div className="flex max-w-sm gap-2">
-            <p>{pokemon.name}</p>
+            <p className="capitalize">{pokemon.name}</p>
             <p>#{pokemon.id}</p>
           </div>
           <div className="flex gap-2">

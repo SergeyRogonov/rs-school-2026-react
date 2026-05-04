@@ -13,7 +13,7 @@ interface LayoutState {
   error: string | null;
 }
 
-class Layout extends React.Component<object, LayoutState> {
+class Layout extends React.Component<Record<string, never>, LayoutState> {
   constructor(props: Record<string, never>) {
     super(props);
     this.state = {
@@ -75,7 +75,7 @@ class Layout extends React.Component<object, LayoutState> {
       }
     } catch (err) {
       this.setState({
-        error: err instanceof Error ? err.message : 'An error occured',
+        error: err instanceof Error ? err.message : 'An error occurred',
         loading: false,
         pokemon: [],
       });

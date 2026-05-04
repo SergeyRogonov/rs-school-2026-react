@@ -9,13 +9,15 @@ interface CardListProps {
 class CardList extends React.Component<CardListProps> {
   render() {
     return (
-      <div className="flex flex-wrap gap-5 w-4/5 justify-center">
-        <div className="flex w-4/5">
+      <div className="flex flex-wrap max-w-7xl gap-5 w-4/5">
+        <div className="flex w-full justify-center">
           <h2 className="text-3xl font-semibold">Results</h2>
         </div>
-        {this.props.pokemon.map((p) => (
-          <Card key={p.id} pokemon={p} />
-        ))}
+        <div className="flex flex-wrap w-full gap-5 justify-center">
+          {this.props.pokemon.map((p) => (
+            <Card key={p.id} pokemon={p} />
+          ))}
+        </div>
       </div>
     );
   }
