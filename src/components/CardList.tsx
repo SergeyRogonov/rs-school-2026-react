@@ -1,21 +1,18 @@
 import React from 'react';
 import Card from './Card';
+import type { Pokemon } from '../types/types.ts';
 
-class CardList extends React.Component {
+interface CardListProps {
+  pokemon: Pokemon[];
+}
+
+class CardList extends React.Component<CardListProps> {
   render() {
     return (
-      <div className="flex flex-wrap gap-5 w-4/5 justify-center">
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
+      <div className="flex flex-wrap gap-5 w-4/5 justify-center ">
+        {this.props.pokemon.map((p) => (
+          <Card key={p.id} pokemon={p} />
+        ))}
       </div>
     );
   }
