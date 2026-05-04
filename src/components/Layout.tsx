@@ -2,6 +2,7 @@ import React from 'react';
 import Header from './Header';
 import Search from './Search';
 import CardList from './CardList';
+import Spinner from './Spinner';
 import type { Pokemon } from '../types/types.ts';
 
 interface LayoutState {
@@ -78,9 +79,8 @@ class Layout extends React.Component<object, LayoutState> {
           <Header />
           <Search onSearch={this.handleSearch} />
         </div>
-
         <div className="flex overflow-auto justify-center">
-          {loading ? <p>Loading...</p> : <CardList pokemon={pokemon} />}
+          {loading ? <Spinner /> : <CardList pokemon={pokemon} />}
         </div>
       </div>
     );
