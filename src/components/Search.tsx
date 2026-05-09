@@ -24,8 +24,14 @@ class Search extends React.Component<SearchProps, SearchState> {
   handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
     const trimmedQuery = this.state.query.trim();
+    const lastSearch = localStorage.getItem('lastSearchTerm');
+
     this.setState({ query: trimmedQuery });
-    localStorage.setItem('lastSearchTerm', trimmedQuery);
+
+    if (trimmedQuery !== lastSearch) {
+      localStorage.setItem('lastSearchTerm', trimmedQuery);
+    }
+
     this.props.onSearch(trimmedQuery);
   };
 
