@@ -5,6 +5,7 @@ import Layout from './components/Layout';
 import Detail from './components/Detail';
 import About from './components/About';
 import ErrorBoundary from './components/ErrorBoundary';
+import NotFound from './components/NotFound';
 
 class App extends React.Component {
   render() {
@@ -17,6 +18,7 @@ class App extends React.Component {
                 <Route path="/" element={<Detail />}></Route>
                 <Route path="/about" element={<About />}></Route>
               </Route>
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </ErrorBoundary>
         </div>
