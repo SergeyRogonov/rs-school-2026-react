@@ -1,3 +1,7 @@
+import React from 'react';
+import { render } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+
 export const mockFetch = vi.fn();
 globalThis.fetch = mockFetch;
 
@@ -28,4 +32,13 @@ export const mockSuccessfulListFetch = () => {
         },
       }),
   });
+};
+
+export const renderWithRouter = (
+  component: React.ReactNode,
+  initialEntries: string[] = ['/']
+) => {
+  return render(
+    React.createElement(MemoryRouter, { initialEntries }, component)
+  );
 };

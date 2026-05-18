@@ -1,21 +1,12 @@
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { screen, waitFor, fireEvent } from '@testing-library/react';
 import Layout from '../Layout';
 import {
   mockFetch,
   mockLocalStorage,
   mockPokemon,
   mockSuccessfulListFetch,
+  renderWithRouter,
 } from '../../test-utils/mocks';
-
-const renderWithRouter = (
-  component: React.ReactNode,
-  initialEntries = ['/']
-) => {
-  return render(
-    <MemoryRouter initialEntries={initialEntries}>{component}</MemoryRouter>
-  );
-};
 
 describe('Layout', () => {
   it('renders header and search components', () => {

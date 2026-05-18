@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Outlet } from 'react-router-dom';
 import Header from './Header';
 import Search from './Search';
 import CardList from './CardList';
@@ -23,6 +23,7 @@ export default function Layout() {
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
   const searchQuery = searchParams.get('search') || '';
   const totalPages = Math.ceil(TOTAL_POKEMON_COUNT / ITEMS_PER_PAGE);
+  const detailId = searchParams.get('details');
 
   const loadPokemon = useCallback(
     async (query?: string, page: number = 1) => {
@@ -81,6 +82,8 @@ export default function Layout() {
     if (trimmedQuery) {
       newParams.set('search', trimmedQuery);
     }
+    // Remove details when searching
+    newParams.delete('details');
     // Page is automatically removed when search is set (page=1 is default)
     setSearchParams(newParams);
   };
@@ -93,6 +96,10 @@ export default function Layout() {
     if (newPage > 1) {
       newParams.set('page', newPage.toString());
     }
+    // Keep details parameter if it exists
+    if (detailId) {
+      newParams.set('details', detailId);
+    }
     setSearchParams(newParams);
   };
 
@@ -102,24 +109,38 @@ export default function Layout() {
         <Header />
         <Search onSearch={handleSearch} />
       </div>
-      <div className="flex overflow-auto justify-center">
-        {error && (
-          <div className="text-red-600 text-center">
-            <p className="text-lg font-semibold">Error</p>
-            <p>{error}</p>
-          </div>
-        )}
-        {loading && !error && <Spinner />}
-        {!loading && !error && (
-          <div className="flex flex-col items-center">
-            <CardList pokemon={pokemon} />
-            {!searchQuery && pokemon.length > 0 && (
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-              />
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left side - Search results */}
+        <div
+          className={`${detailId ? 'w-full md:w-2/3' : 'w-full'} overflow-auto`}
+        >
+          <div className="flex justify-center">
+            {error && (
+              <div className="text-red-600 text-center">
+                <p className="text-lg font-semibold">Error</p>
+                <p>{error}</p>
+              </div>
             )}
+            {loading && !error && <Spinner />}
+            {!loading && !error && (
+              <div className="flex flex-col items-center w-full">
+                <CardList pokemon={pokemon} />
+                {!searchQuery && pokemon.length > 0 && (
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                  />
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right side - Detail panel (Outlet) */}
+        {detailId && (
+          <div className="w-full md:w-1/3 border-l border-gray-300">
+            <Outlet />
           </div>
         )}
       </div>
