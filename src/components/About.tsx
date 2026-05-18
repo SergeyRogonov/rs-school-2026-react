@@ -24,7 +24,7 @@ export default function About() {
         <p className="mb-4">
           <strong>Course:</strong>{' '}
           <a
-            href="https://rs.school/react/"
+            href="https://rs.school/courses/reactjs"
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-600 hover:text-blue-800 underline"
