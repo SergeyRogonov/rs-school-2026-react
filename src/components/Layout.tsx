@@ -1,38 +1,55 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Header from './Header';
 import Search from './Search';
 import CardList from './CardList';
 import Spinner from './Spinner';
+import Pagination from './Pagination.tsx';
 import type { Pokemon } from '../types/types.ts';
 import TestErrorButton from './TestErrorButton.tsx';
-import { fetchPokemon } from '../services/pokemonService';
+import { fetchPokemon, fetchPokemonList } from '../services/pokemonService';
+
+const ITEMS_PER_PAGE = 20;
+const TOTAL_POKEMON_COUNT = 1025;
 
 export default function Layout() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [pokemon, setPokemon] = useState<Pokemon[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastQuery, setLastQuery] = useState<string | null>(null);
+  const [lastPage, setLastPage] = useState<number>(1);
   const [error, setError] = useState<string | null>(null);
 
-  const loadPokemon = useCallback(
-    async (query?: string) => {
-      const queryToUse = query || '';
+  const currentPage = parseInt(searchParams.get('page') || '1', 10);
+  const searchQuery = searchParams.get('search') || '';
+  const totalPages = Math.ceil(TOTAL_POKEMON_COUNT / ITEMS_PER_PAGE);
 
-      if (queryToUse === lastQuery) {
+  const loadPokemon = useCallback(
+    async (query?: string, page: number = 1) => {
+      const queryToUse = query || '';
+      const pageToUse = page;
+
+      if (queryToUse === lastQuery && pageToUse === lastPage) {
         return;
       }
 
       setLoading(true);
       setLastQuery(queryToUse);
+      setLastPage(pageToUse);
 
       try {
-        const data = await fetchPokemon(query);
-        if (Array.isArray(data)) {
-          setPokemon(data);
-        } else if (data) {
-          setPokemon([data]);
+        let data;
+        if (queryToUse) {
+          data = await fetchPokemon(queryToUse);
+          if (data && !Array.isArray(data)) {
+            setPokemon([data]);
+          } else {
+            setPokemon([]);
+            throw new Error(`Pokémon "${query}" not found`);
+          }
         } else {
-          setPokemon([]);
-          throw new Error(`Pokémon "${query}" not found`);
+          data = await fetchPokemonList(ITEMS_PER_PAGE, pageToUse);
+          setPokemon(data);
         }
 
         setLoading(false);
@@ -43,24 +60,40 @@ export default function Layout() {
         setError(err instanceof Error ? err.message : 'An error occurred');
       }
     },
-    [lastQuery]
+    [lastQuery, lastPage]
   );
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      const lastSearch = localStorage.getItem('lastSearchTerm');
-      if (lastSearch) {
-        loadPokemon(lastSearch);
-      } else {
-        loadPokemon();
-      }
+      const page = parseInt(searchParams.get('page') || '1', 10);
+      const lastSearch = localStorage.getItem('lastSearchTerm') || '';
+
+      loadPokemon(lastSearch, page);
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [loadPokemon]);
+  }, [loadPokemon, searchParams]);
 
   const handleSearch = (query: string) => {
-    loadPokemon(query);
+    const trimmedQuery = query.trim();
+
+    const newParams = new URLSearchParams();
+    if (trimmedQuery) {
+      newParams.set('search', trimmedQuery);
+    }
+    // Page is automatically removed when search is set (page=1 is default)
+    setSearchParams(newParams);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    const newParams = new URLSearchParams();
+    if (searchQuery) {
+      newParams.set('search', searchQuery);
+    }
+    if (newPage > 1) {
+      newParams.set('page', newPage.toString());
+    }
+    setSearchParams(newParams);
   };
 
   return (
@@ -77,7 +110,18 @@ export default function Layout() {
           </div>
         )}
         {loading && !error && <Spinner />}
-        {!loading && !error && <CardList pokemon={pokemon} />}
+        {!loading && !error && (
+          <div className="flex flex-col items-center">
+            <CardList pokemon={pokemon} />
+            {!searchQuery && pokemon.length > 0 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            )}
+          </div>
+        )}
       </div>
       <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 lg:bottom-8 lg:right-20 z-10">
         <TestErrorButton />

@@ -1,4 +1,5 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import Layout from '../Layout';
 import {
   mockFetch,
@@ -7,11 +8,20 @@ import {
   mockSuccessfulListFetch,
 } from '../../test-utils/mocks';
 
+const renderWithRouter = (
+  component: React.ReactNode,
+  initialEntries = ['/']
+) => {
+  return render(
+    <MemoryRouter initialEntries={initialEntries}>{component}</MemoryRouter>
+  );
+};
+
 describe('Layout', () => {
   it('renders header and search components', () => {
     mockSuccessfulListFetch();
 
-    render(<Layout />);
+    renderWithRouter(<Layout />);
 
     expect(screen.getByText('Pokémon Search App')).toBeInTheDocument();
     expect(
@@ -22,7 +32,7 @@ describe('Layout', () => {
   it('shows spinner while loading', () => {
     mockFetch.mockImplementation(() => new Promise(() => {})); // Never resolves
 
-    render(<Layout />);
+    renderWithRouter(<Layout />);
 
     expect(screen.getByLabelText('Loading...')).toBeInTheDocument();
   });
@@ -30,7 +40,7 @@ describe('Layout', () => {
   it('fetches and displays pokemon list on mount', async () => {
     mockSuccessfulListFetch();
 
-    render(<Layout />);
+    renderWithRouter(<Layout />);
 
     await waitFor(() => {
       expect(screen.getByText('Results')).toBeInTheDocument();
@@ -41,7 +51,7 @@ describe('Layout', () => {
   it('displays error when fetch fails', async () => {
     mockFetch.mockRejectedValueOnce(new Error('Failed to fetch data'));
 
-    render(<Layout />);
+    renderWithRouter(<Layout />);
 
     await waitFor(() => {
       expect(screen.getByText('Error')).toBeInTheDocument();
@@ -59,7 +69,7 @@ describe('Layout', () => {
         }),
     });
 
-    render(<Layout />);
+    renderWithRouter(<Layout />);
 
     await waitFor(() => {
       expect(
@@ -74,7 +84,7 @@ describe('Layout', () => {
       status: 500,
     });
 
-    render(<Layout />);
+    renderWithRouter(<Layout />);
 
     await waitFor(() => {
       expect(screen.getByText('Error')).toBeInTheDocument();
@@ -92,7 +102,7 @@ describe('Layout', () => {
         }),
     });
 
-    render(<Layout />);
+    renderWithRouter(<Layout />);
 
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalledWith(
@@ -116,7 +126,7 @@ describe('Layout', () => {
         }),
     });
 
-    render(<Layout />);
+    renderWithRouter(<Layout />);
 
     await waitFor(() => {
       expect(screen.queryByLabelText('Loading...')).not.toBeInTheDocument();
@@ -135,7 +145,7 @@ describe('Layout', () => {
     mockLocalStorage.getItem.mockReturnValue(null);
     mockSuccessfulListFetch();
 
-    render(<Layout />);
+    renderWithRouter(<Layout />);
 
     await waitFor(() => {
       expect(screen.getByText('Results')).toBeInTheDocument();
@@ -150,5 +160,62 @@ describe('Layout', () => {
         body: expect.stringContaining('GetPokemonList'),
       })
     );
+  });
+
+  describe('Layout Pagination', () => {
+    it('shows pagination when not searching and first page pokemons are loaded', async () => {
+      mockSuccessfulListFetch();
+
+      renderWithRouter(<Layout />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Results')).toBeInTheDocument();
+      });
+
+      expect(screen.getByText('Previous')).toBeInTheDocument();
+      expect(screen.getByText('Next')).toBeInTheDocument();
+    });
+
+    it('hides pagination when searching', async () => {
+      mockLocalStorage.getItem.mockReturnValue('bulbasaur');
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            data: { pokemon: [mockPokemon] },
+          }),
+      });
+
+      renderWithRouter(<Layout />, ['/?search=bulbasaur']);
+
+      await waitFor(() => {
+        expect(screen.getByText('bulbasaur')).toBeInTheDocument();
+      });
+
+      expect(screen.queryByText('Previous')).not.toBeInTheDocument();
+      expect(screen.queryByText('Next')).not.toBeInTheDocument();
+    });
+
+    it('loads correct page from URL on mount', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            data: { pokemon: [{ ...mockPokemon, id: 21, name: 'spearow' }] },
+          }),
+      });
+
+      renderWithRouter(<Layout />, ['/?page=2']);
+
+      await waitFor(() => {
+        // Verify API was called with page=2
+        expect(mockFetch).toHaveBeenCalledWith(
+          'https://beta.pokeapi.co/graphql/v1beta',
+          expect.objectContaining({
+            body: expect.stringContaining('"offset":20'),
+          })
+        );
+      });
+    });
   });
 });

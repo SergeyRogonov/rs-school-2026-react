@@ -97,8 +97,9 @@ const transformRawPokemon = (rawPokemon: RawPokemonResponse): Pokemon => ({
 
 export const fetchPokemonList = async (
   limit: number = 20,
-  offset: number = 0
+  page: number = 1
 ): Promise<Pokemon[]> => {
+  const offset = (page - 1) * limit;
   const data = await graphqlRequest(GET_POKEMON_LIST, {
     limit,
     offset,
