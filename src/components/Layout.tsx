@@ -8,6 +8,7 @@ import Pagination from './Pagination.tsx';
 import type { Pokemon } from '../types/types.ts';
 import TestErrorButton from './TestErrorButton.tsx';
 import { fetchPokemon, fetchPokemonList } from '../services/pokemonService';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 const ITEMS_PER_PAGE = 20;
 const TOTAL_POKEMON_COUNT = 1025;
@@ -20,6 +21,7 @@ export default function Layout() {
   const [lastPage, setLastPage] = useState<number>(1);
   const [error, setError] = useState<string | null>(null);
   const location = useLocation();
+  const [lastSearchTerm] = useLocalStorage('lastSearchTerm');
 
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
   const searchQuery = searchParams.get('search') || '';
@@ -78,13 +80,13 @@ export default function Layout() {
 
     const timer = setTimeout(() => {
       const page = parseInt(searchParams.get('page') || '1', 10);
-      const lastSearch = localStorage.getItem('lastSearchTerm') || '';
-
-      loadPokemon(lastSearch, page);
+      // Use searchQuery from URL if available, otherwise use lastSearchTerm from localStorage
+      const queryToLoad = searchQuery || lastSearchTerm;
+      loadPokemon(queryToLoad, page);
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [loadPokemon, searchParams, isAboutPage]);
+  }, [loadPokemon, searchParams, isAboutPage, lastSearchTerm, searchQuery]); // Add searchQuery to dependencies
 
   const handleSearch = (query: string) => {
     const trimmedQuery = query.trim();

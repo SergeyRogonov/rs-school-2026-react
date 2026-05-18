@@ -1,26 +1,20 @@
 import { useState } from 'react';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 interface SearchProps {
   onSearch: (query: string) => void;
 }
 
 export default function Search({ onSearch }: SearchProps) {
-  const [query, setQuery] = useState(() => {
-    const lastSearch = localStorage.getItem('lastSearchTerm');
-    return lastSearch || '';
-  });
+  const [lastSearchTerm, setLastSearchTerm] = useLocalStorage('lastSearchTerm');
+  const [query, setQuery] = useState(lastSearchTerm);
 
   const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
     const trimmedQuery = query.trim();
-    const lastSearch = localStorage.getItem('lastSearchTerm');
 
     setQuery(trimmedQuery);
-
-    if (trimmedQuery !== lastSearch) {
-      localStorage.setItem('lastSearchTerm', trimmedQuery);
-    }
-
+    setLastSearchTerm(trimmedQuery);
     onSearch(trimmedQuery);
   };
 
