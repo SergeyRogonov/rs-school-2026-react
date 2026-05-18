@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useSearchParams, Outlet } from 'react-router-dom';
+import { useSearchParams, Outlet, useLocation } from 'react-router-dom';
 import Header from './Header';
 import Search from './Search';
 import CardList from './CardList';
@@ -19,11 +19,13 @@ export default function Layout() {
   const [lastQuery, setLastQuery] = useState<string | null>(null);
   const [lastPage, setLastPage] = useState<number>(1);
   const [error, setError] = useState<string | null>(null);
+  const location = useLocation();
 
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
   const searchQuery = searchParams.get('search') || '';
   const totalPages = Math.ceil(TOTAL_POKEMON_COUNT / ITEMS_PER_PAGE);
   const detailId = searchParams.get('details');
+  const isAboutPage = location.pathname === '/about';
 
   const loadPokemon = useCallback(
     async (query?: string, page: number = 1) => {
@@ -65,6 +67,15 @@ export default function Layout() {
   );
 
   useEffect(() => {
+    // Don't load pokemon if we're on the about page
+    if (isAboutPage) {
+      const timer = setTimeout(() => {
+        setLoading(false);
+      }, 0);
+
+      return () => clearTimeout(timer);
+    }
+
     const timer = setTimeout(() => {
       const page = parseInt(searchParams.get('page') || '1', 10);
       const lastSearch = localStorage.getItem('lastSearchTerm') || '';
@@ -73,7 +84,7 @@ export default function Layout() {
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [loadPokemon, searchParams]);
+  }, [loadPokemon, searchParams, isAboutPage]);
 
   const handleSearch = (query: string) => {
     const trimmedQuery = query.trim();
@@ -104,46 +115,59 @@ export default function Layout() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen p-5">
-      <div className="sticky top-0 flex flex-col gap-5 bg-[#d6fff2] z-20 p-10">
+    <div className="flex flex-col min-h-screen">
+      <div className="sticky top-0 z-20">
         <Header />
-        <Search onSearch={handleSearch} />
       </div>
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left side - Search results */}
-        <div
-          className={`${detailId ? 'w-full md:w-2/3' : 'w-full'} overflow-auto`}
-        >
-          <div className="flex justify-center">
-            {error && (
-              <div className="text-red-600 text-center">
-                <p className="text-lg font-semibold">Error</p>
-                <p>{error}</p>
-              </div>
-            )}
-            {loading && !error && <Spinner />}
-            {!loading && !error && (
-              <div className="flex flex-col items-center w-full">
-                <CardList pokemon={pokemon} />
-                {!searchQuery && pokemon.length > 0 && (
-                  <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={handlePageChange}
-                  />
+
+      <div className="flex flex-col flex-1 p-5 bg-[#d6fff2]">
+        <div className="flex flex-col gap-5">
+          {!isAboutPage && <Search onSearch={handleSearch} />}
+
+          <div className="flex flex-1 overflow-hidden">
+            {/* Main content area */}
+            <div
+              className={`${detailId && !isAboutPage ? 'w-full md:w-2/3' : 'w-full'} overflow-auto`}
+            >
+              <div className="flex justify-center">
+                {isAboutPage ? (
+                  <Outlet />
+                ) : (
+                  <>
+                    {error && (
+                      <div className="text-red-600 text-center">
+                        <p className="text-lg font-semibold">Error</p>
+                        <p>{error}</p>
+                      </div>
+                    )}
+                    {loading && !error && <Spinner />}
+                    {!loading && !error && (
+                      <div className="flex flex-col items-center w-full">
+                        <CardList pokemon={pokemon} />
+                        {!searchQuery && pokemon.length > 0 && (
+                          <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={handlePageChange}
+                          />
+                        )}
+                      </div>
+                    )}
+                  </>
                 )}
+              </div>
+            </div>
+
+            {/* Right side - Detail panel */}
+            {detailId && !isAboutPage && (
+              <div className="w-full md:w-1/3 border-l border-gray-300">
+                <Outlet />
               </div>
             )}
           </div>
         </div>
-
-        {/* Right side - Detail panel (Outlet) */}
-        {detailId && (
-          <div className="w-full md:w-1/3 border-l border-gray-300">
-            <Outlet />
-          </div>
-        )}
       </div>
+
       <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 lg:bottom-8 lg:right-20 z-10">
         <TestErrorButton />
       </div>
