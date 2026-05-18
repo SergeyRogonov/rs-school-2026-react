@@ -52,15 +52,18 @@ describe('Layout', () => {
   it('displays 404 error for non-existent pokemon', async () => {
     mockLocalStorage.getItem.mockReturnValue('nonexistent');
     mockFetch.mockResolvedValueOnce({
-      ok: false,
-      status: 404,
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          data: { pokemon: [] },
+        }),
     });
 
     render(<Layout />);
 
     await waitFor(() => {
       expect(
-        screen.getByText('Pokémon with name or id "nonexistent" does not exist')
+        screen.getByText('Pokémon "nonexistent" not found')
       ).toBeInTheDocument();
     });
   });
@@ -79,38 +82,52 @@ describe('Layout', () => {
     });
   });
 
-  it('uses last search term from localStorage on mount', () => {
-    mockLocalStorage.getItem.mockReturnValue('pikachu');
+  it('uses last search term from localStorage on mount', async () => {
+    mockLocalStorage.getItem.mockReturnValue('bulbasaur');
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve(mockPokemon),
+      json: () =>
+        Promise.resolve({
+          data: { pokemon: [mockPokemon] },
+        }),
     });
 
     render(<Layout />);
 
-    expect(mockFetch).toHaveBeenCalledWith(
-      'https://pokeapi.co/api/v2/pokemon/pikachu'
-    );
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://beta.pokeapi.co/graphql/v1beta',
+        expect.objectContaining({
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: expect.stringMatching(/GetPokemonByName|GetPokemonById/),
+        })
+      );
+    });
   });
 
-  it('does not fetch if query is same as last query', () => {
-    mockLocalStorage.getItem.mockReturnValue('pikachu');
+  it('does not fetch if query is same as last query', async () => {
+    mockLocalStorage.getItem.mockReturnValue('bulbasaur');
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve(mockPokemon),
+      json: () =>
+        Promise.resolve({
+          data: { pokemon: [mockPokemon] },
+        }),
     });
 
     render(<Layout />);
 
-    // Reset mock to track new calls
+    await waitFor(() => {
+      expect(screen.queryByLabelText('Loading...')).not.toBeInTheDocument();
+    });
+
     mockFetch.mockClear();
 
-    // Search for same pokemon again
     const input = screen.getByPlaceholderText('Search by name or ID');
-    fireEvent.change(input, { target: { value: 'pikachu' } });
+    fireEvent.change(input, { target: { value: 'bulbasaur' } });
     fireEvent.submit(input.closest('form')!);
 
-    // Should not make new fetch calls
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
@@ -125,10 +142,13 @@ describe('Layout', () => {
       expect(screen.getByText('bulbasaur')).toBeInTheDocument();
     });
 
-    // Verify it fetched the default list, not a specific pokemon
     expect(mockFetch).toHaveBeenNthCalledWith(
       1,
-      'https://pokeapi.co/api/v2/pokemon?limit=20&offset=0'
+      'https://beta.pokeapi.co/graphql/v1beta',
+      expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('GetPokemonList'),
+      })
     );
   });
 });

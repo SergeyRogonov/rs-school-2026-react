@@ -5,6 +5,7 @@ import CardList from './CardList';
 import Spinner from './Spinner';
 import type { Pokemon } from '../types/types.ts';
 import TestErrorButton from './TestErrorButton.tsx';
+import { fetchPokemon } from '../services/pokemonService';
 
 export default function Layout() {
   const [pokemon, setPokemon] = useState<Pokemon[]>([]);
@@ -12,7 +13,7 @@ export default function Layout() {
   const [lastQuery, setLastQuery] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchPokemon = useCallback(
+  const loadPokemon = useCallback(
     async (query?: string) => {
       const queryToUse = query || '';
 
@@ -23,43 +24,19 @@ export default function Layout() {
       setLoading(true);
       setLastQuery(queryToUse);
 
-      let url: string;
-      let isSinglePokemon = false;
-
-      if (query) {
-        url = `https://pokeapi.co/api/v2/pokemon/${query.toLowerCase()}`;
-        isSinglePokemon = true;
-      } else {
-        url = 'https://pokeapi.co/api/v2/pokemon?limit=20&offset=0';
-      }
-
       try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          if (response.status === 404 && isSinglePokemon) {
-            throw new Error(
-              `Pokémon with name or id "${query}" does not exist`
-            );
-          }
-          throw new Error('Failed to fetch data');
-        }
-
-        const data = await response.json();
-
-        if (isSinglePokemon) {
+        const data = await fetchPokemon(query);
+        if (Array.isArray(data)) {
+          setPokemon(data);
+        } else if (data) {
           setPokemon([data]);
-          setLoading(false);
-          setError(null);
         } else {
-          const pokemonDetails = await Promise.all(
-            data.results.map((p: { url: string }) =>
-              fetch(p.url).then((r) => r.json())
-            )
-          );
-          setPokemon(pokemonDetails);
-          setLoading(false);
-          setError(null);
+          setPokemon([]);
+          throw new Error(`Pokémon "${query}" not found`);
         }
+
+        setLoading(false);
+        setError(null);
       } catch (err) {
         setPokemon([]);
         setLoading(false);
@@ -73,17 +50,17 @@ export default function Layout() {
     const timer = setTimeout(() => {
       const lastSearch = localStorage.getItem('lastSearchTerm');
       if (lastSearch) {
-        fetchPokemon(lastSearch);
+        loadPokemon(lastSearch);
       } else {
-        fetchPokemon();
+        loadPokemon();
       }
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [fetchPokemon]);
+  }, [loadPokemon]);
 
   const handleSearch = (query: string) => {
-    fetchPokemon(query);
+    loadPokemon(query);
   };
 
   return (
