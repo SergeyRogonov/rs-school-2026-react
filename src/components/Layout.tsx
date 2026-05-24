@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useSearchParams, Outlet, useLocation } from 'react-router-dom';
 import Header from './Header';
 import Search from './Search';
@@ -14,6 +14,7 @@ const ITEMS_PER_PAGE = 20;
 const TOTAL_POKEMON_COUNT = 1025;
 
 export default function Layout() {
+  const detailPanelRef = useRef<HTMLDivElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [pokemon, setPokemon] = useState<Pokemon[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,13 +81,47 @@ export default function Layout() {
 
     const timer = setTimeout(() => {
       const page = parseInt(searchParams.get('page') || '1', 10);
+
       // Use searchQuery from URL if available, otherwise use lastSearchTerm from localStorage
       const queryToLoad = searchQuery || lastSearchTerm;
       loadPokemon(queryToLoad, page);
+
+      if (!searchQuery && !searchParams.has('page')) {
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set('page', '1');
+        setSearchParams(newParams, { replace: true });
+      }
     }, 0);
 
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        detailId &&
+        detailPanelRef.current &&
+        !detailPanelRef.current.contains(e.target as Node) &&
+        !(e.target as HTMLElement).closest('[data-detail-trigger]') &&
+        !(e.target as HTMLElement).closest('[data-pagination]')
+      ) {
+        const newParams = new URLSearchParams(searchParams);
+        newParams.delete('details');
+        setSearchParams(newParams);
+      }
+    };
+    if (detailId) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () =>
+        document.removeEventListener('mousedown', handleClickOutside);
+    }
+
     return () => clearTimeout(timer);
-  }, [loadPokemon, searchParams, isAboutPage, lastSearchTerm, searchQuery]); // Add searchQuery to dependencies
+  }, [
+    detailId,
+    loadPokemon,
+    searchParams,
+    setSearchParams,
+    isAboutPage,
+    lastSearchTerm,
+    searchQuery,
+  ]);
 
   const handleSearch = (query: string) => {
     const trimmedQuery = query.trim();
@@ -97,7 +132,8 @@ export default function Layout() {
     }
     // Remove details when searching
     newParams.delete('details');
-    // Page is automatically removed when search is set (page=1 is default)
+
+    newParams.set('page', '1');
     setSearchParams(newParams);
   };
 
@@ -106,9 +142,8 @@ export default function Layout() {
     if (searchQuery) {
       newParams.set('search', searchQuery);
     }
-    if (newPage > 1) {
-      newParams.set('page', newPage.toString());
-    }
+    newParams.set('page', newPage.toString());
+
     // Keep details parameter if it exists
     if (detailId) {
       newParams.set('details', detailId);
@@ -124,7 +159,7 @@ export default function Layout() {
 
       <div className="flex flex-col flex-1 p-5 bg-[#d6fff2]">
         <div className="flex flex-col gap-5">
-          {!isAboutPage && <Search onSearch={handleSearch} />}
+          {!isAboutPage && <Search key={searchQuery} onSearch={handleSearch} />}
 
           <div className="flex flex-1 overflow-hidden">
             {/* Main content area */}
@@ -146,13 +181,13 @@ export default function Layout() {
                     {!loading && !error && (
                       <div className="flex flex-col items-center w-full">
                         <CardList pokemon={pokemon} />
-                        {!searchQuery && pokemon.length > 0 && (
+                        {/* {!searchQuery && pokemon.length > 0 && (
                           <Pagination
                             currentPage={currentPage}
                             totalPages={totalPages}
                             onPageChange={handlePageChange}
                           />
-                        )}
+                        )} */}
                       </div>
                     )}
                   </>
@@ -162,7 +197,10 @@ export default function Layout() {
 
             {/* Right side - Detail panel */}
             {detailId && !isAboutPage && (
-              <div className="w-full md:w-1/3 border-l border-gray-300">
+              <div
+                ref={detailPanelRef}
+                className="w-full md:w-1/3 border-l border-gray-300"
+              >
                 <Outlet />
               </div>
             )}
@@ -170,7 +208,17 @@ export default function Layout() {
         </div>
       </div>
 
-      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 lg:bottom-8 lg:right-20 z-10">
+      {!isAboutPage && !searchQuery && pokemon.length > 0 && (
+        <div className="sticky bottom-0 z-10 bg-[#d45d79] py-2">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </div>
+      )}
+
+      <div className="fixed bottom-0.5 right-0.5 sm:bottom-2 sm:right-6 lg:bottom-2 lg:right-20 z-10">
         <TestErrorButton />
       </div>
     </div>

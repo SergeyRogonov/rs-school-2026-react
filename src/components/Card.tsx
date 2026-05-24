@@ -18,6 +18,7 @@ export default function Card({ pokemon }: CardProps) {
     <div
       className="flex flex-row w-3xs rounded-md border-2 border-black p-2"
       onClick={handleClick}
+      data-detail-trigger
     >
       <div className="flex flex-col w-full gap-1">
         <div className="flex max-w-sm gap-2">
