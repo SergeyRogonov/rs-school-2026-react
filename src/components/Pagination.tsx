@@ -2,6 +2,7 @@ interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  onInit?: () => void;
 }
 
 export default function Pagination({
@@ -11,11 +12,11 @@ export default function Pagination({
 }: PaginationProps) {
   if (totalPages <= 1) return null;
   return (
-    <div className="flex justify-center items-center gap-4 mt-4">
+    <div data-pagination className="flex justify-center items-center gap-4">
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+        className="px-3 py-1 text-sm bg-white text-[#d45d79] rounded hover:bg-gray-300 disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-[#d45d79] transition-colors"
       >
         Previous
       </button>
@@ -25,7 +26,7 @@ export default function Pagination({
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+        className="px-3 py-1 text-sm bg-white text-[#d45d79] rounded hover:bg-gray-300 disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-[#d45d79] transition-colors"
       >
         Next
       </button>
