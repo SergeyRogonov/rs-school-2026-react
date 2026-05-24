@@ -1,17 +1,18 @@
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { screen, waitFor, fireEvent } from '@testing-library/react';
 import Layout from '../Layout';
 import {
   mockFetch,
   mockLocalStorage,
   mockPokemon,
   mockSuccessfulListFetch,
+  renderWithRouter,
 } from '../../test-utils/mocks';
 
 describe('Layout', () => {
   it('renders header and search components', () => {
     mockSuccessfulListFetch();
 
-    render(<Layout />);
+    renderWithRouter(<Layout />);
 
     expect(screen.getByText('Pokémon Search App')).toBeInTheDocument();
     expect(
@@ -22,7 +23,7 @@ describe('Layout', () => {
   it('shows spinner while loading', () => {
     mockFetch.mockImplementation(() => new Promise(() => {})); // Never resolves
 
-    render(<Layout />);
+    renderWithRouter(<Layout />);
 
     expect(screen.getByLabelText('Loading...')).toBeInTheDocument();
   });
@@ -30,7 +31,7 @@ describe('Layout', () => {
   it('fetches and displays pokemon list on mount', async () => {
     mockSuccessfulListFetch();
 
-    render(<Layout />);
+    renderWithRouter(<Layout />);
 
     await waitFor(() => {
       expect(screen.getByText('Results')).toBeInTheDocument();
@@ -41,7 +42,7 @@ describe('Layout', () => {
   it('displays error when fetch fails', async () => {
     mockFetch.mockRejectedValueOnce(new Error('Failed to fetch data'));
 
-    render(<Layout />);
+    renderWithRouter(<Layout />);
 
     await waitFor(() => {
       expect(screen.getByText('Error')).toBeInTheDocument();
@@ -52,15 +53,18 @@ describe('Layout', () => {
   it('displays 404 error for non-existent pokemon', async () => {
     mockLocalStorage.getItem.mockReturnValue('nonexistent');
     mockFetch.mockResolvedValueOnce({
-      ok: false,
-      status: 404,
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          data: { pokemon: [] },
+        }),
     });
 
-    render(<Layout />);
+    renderWithRouter(<Layout />);
 
     await waitFor(() => {
       expect(
-        screen.getByText('Pokémon with name or id "nonexistent" does not exist')
+        screen.getByText('Pokémon "nonexistent" not found')
       ).toBeInTheDocument();
     });
   });
@@ -71,7 +75,7 @@ describe('Layout', () => {
       status: 500,
     });
 
-    render(<Layout />);
+    renderWithRouter(<Layout />);
 
     await waitFor(() => {
       expect(screen.getByText('Error')).toBeInTheDocument();
@@ -79,38 +83,52 @@ describe('Layout', () => {
     });
   });
 
-  it('uses last search term from localStorage on mount', () => {
-    mockLocalStorage.getItem.mockReturnValue('pikachu');
+  it('uses last search term from localStorage on mount', async () => {
+    mockLocalStorage.getItem.mockReturnValue('bulbasaur');
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve(mockPokemon),
+      json: () =>
+        Promise.resolve({
+          data: { pokemon: [mockPokemon] },
+        }),
     });
 
-    render(<Layout />);
+    renderWithRouter(<Layout />);
 
-    expect(mockFetch).toHaveBeenCalledWith(
-      'https://pokeapi.co/api/v2/pokemon/pikachu'
-    );
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://beta.pokeapi.co/graphql/v1beta',
+        expect.objectContaining({
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: expect.stringMatching(/GetPokemonByName|GetPokemonById/),
+        })
+      );
+    });
   });
 
-  it('does not fetch if query is same as last query', () => {
-    mockLocalStorage.getItem.mockReturnValue('pikachu');
+  it('does not fetch if query is same as last query', async () => {
+    mockLocalStorage.getItem.mockReturnValue('bulbasaur');
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve(mockPokemon),
+      json: () =>
+        Promise.resolve({
+          data: { pokemon: [mockPokemon] },
+        }),
     });
 
-    render(<Layout />);
+    renderWithRouter(<Layout />);
 
-    // Reset mock to track new calls
+    await waitFor(() => {
+      expect(screen.queryByLabelText('Loading...')).not.toBeInTheDocument();
+    });
+
     mockFetch.mockClear();
 
-    // Search for same pokemon again
     const input = screen.getByPlaceholderText('Search by name or ID');
-    fireEvent.change(input, { target: { value: 'pikachu' } });
+    fireEvent.change(input, { target: { value: 'bulbasaur' } });
     fireEvent.submit(input.closest('form')!);
 
-    // Should not make new fetch calls
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
@@ -118,17 +136,77 @@ describe('Layout', () => {
     mockLocalStorage.getItem.mockReturnValue(null);
     mockSuccessfulListFetch();
 
-    render(<Layout />);
+    renderWithRouter(<Layout />);
 
     await waitFor(() => {
       expect(screen.getByText('Results')).toBeInTheDocument();
       expect(screen.getByText('bulbasaur')).toBeInTheDocument();
     });
 
-    // Verify it fetched the default list, not a specific pokemon
     expect(mockFetch).toHaveBeenNthCalledWith(
       1,
-      'https://pokeapi.co/api/v2/pokemon?limit=20&offset=0'
+      'https://beta.pokeapi.co/graphql/v1beta',
+      expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('GetPokemonList'),
+      })
     );
+  });
+
+  describe('Layout Pagination', () => {
+    it('shows pagination when not searching and first page pokemons are loaded', async () => {
+      mockSuccessfulListFetch();
+
+      renderWithRouter(<Layout />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Results')).toBeInTheDocument();
+      });
+
+      expect(screen.getByText('Previous')).toBeInTheDocument();
+      expect(screen.getByText('Next')).toBeInTheDocument();
+    });
+
+    it('hides pagination when searching', async () => {
+      mockLocalStorage.getItem.mockReturnValue('bulbasaur');
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            data: { pokemon: [mockPokemon] },
+          }),
+      });
+
+      renderWithRouter(<Layout />, ['/?search=bulbasaur']);
+
+      await waitFor(() => {
+        expect(screen.getByText('bulbasaur')).toBeInTheDocument();
+      });
+
+      expect(screen.queryByText('Previous')).not.toBeInTheDocument();
+      expect(screen.queryByText('Next')).not.toBeInTheDocument();
+    });
+
+    it('loads correct page from URL on mount', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            data: { pokemon: [{ ...mockPokemon, id: 21, name: 'spearow' }] },
+          }),
+      });
+
+      renderWithRouter(<Layout />, ['/?page=2']);
+
+      await waitFor(() => {
+        // Verify API was called with page=2
+        expect(mockFetch).toHaveBeenCalledWith(
+          'https://beta.pokeapi.co/graphql/v1beta',
+          expect.objectContaining({
+            body: expect.stringContaining('"offset":20'),
+          })
+        );
+      });
+    });
   });
 });
