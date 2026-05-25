@@ -199,11 +199,3 @@ export const searchPokemon = async (query: string) => {
 
   return transformRawPokemon(rawPokemon);
 };
-
-export const fetchPokemon = async (query?: string) => {
-  if (query) {
-    return await searchPokemon(query);
-  } else {
-    return await fetchPokemonList();
-  }
-};
