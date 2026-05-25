@@ -16,7 +16,7 @@ export default function Pagination({
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="px-3 py-1 text-sm bg-white text-[#d45d79] rounded hover:bg-gray-300 disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-[#d45d79] transition-colors"
+        className="px-3 py-1 text-sm bg-(--bg-secondary) text-(--brand-header) rounded hover:bg-(--border-color) disabled:opacity-50 disabled:hover:bg-(--bg-secondary) disabled:hover:text-(--brand-header) transition-colors"
       >
         Previous
       </button>
@@ -26,7 +26,7 @@ export default function Pagination({
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="px-3 py-1 text-sm bg-white text-[#d45d79] rounded hover:bg-gray-300 disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-[#d45d79] transition-colors"
+        className="px-3 py-1 text-sm bg-(--bg-secondary) text-(--brand-header) rounded hover:bg-(--border-color) disabled:opacity-50 disabled:hover:bg-(--bg-secondary) disabled:hover:text-(--brand-header) transition-colors"
       >
         Next
       </button>

@@ -96,7 +96,7 @@ export default function SelectionFlyout() {
   return (
     <div className="flex gap-3 flex-row justify-between">
       <div className="flex-col">
-        <span className="text-sm font-semibold text-gray-800">
+        <span className="text-sm font-semibold text-black">
           Selected items: {selectedCount}
         </span>
       </div>
@@ -105,7 +105,7 @@ export default function SelectionFlyout() {
         <button
           type="button"
           onClick={handleUnselectAll}
-          className="rounded bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700 transition hover:bg-gray-200"
+          className="rounded bg-(--bg-secondary) px-3 py-1 text-sm font-medium text-(--text-primary) transition hover:bg-(--border-color)"
         >
           Unselect all
         </button>
@@ -113,7 +113,7 @@ export default function SelectionFlyout() {
         <button
           type="button"
           onClick={handleDownload}
-          className="rounded bg-blue-600 px-3 py-1 text-sm font-medium text-white transition hover:bg-blue-700"
+          className="rounded bg-(--brand-header) px-3 py-1 text-sm font-medium text-(--bg-secondary) transition hover:bg-(--border-color)"
         >
           Download
         </button>

@@ -122,7 +122,7 @@ export default function Layout() {
         <TestErrorButton />
       </div>
 
-      <div className="flex flex-col flex-1 p-5 bg-[#d6fff2]">
+      <div className="flex flex-col flex-1 p-5 bg-(--bg-primary) text-(--text-primary)">
         <div className="flex flex-col gap-5">
           {!isAboutPage && <Search key={searchQuery} onSearch={handleSearch} />}
 
@@ -157,7 +157,7 @@ export default function Layout() {
             {detailId && !isAboutPage && (
               <div
                 ref={detailPanelRef}
-                className="w-full md:w-1/3 border-l border-gray-300"
+                className="w-full md:w-1/3 border-l border-(--border-color)"
               >
                 <Outlet />
               </div>
@@ -168,19 +168,19 @@ export default function Layout() {
 
       {!isAboutPage && !searchQuery && pokemon.length > 0 ? (
         <>
-          <div className="sticky bottom-0 z-20 bg-[#d45d79] py-2">
+          <div className="sticky bottom-0 z-20 bg-(--brand-header) py-2">
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
               onPageChange={handlePageChange}
             />
           </div>
-          <div className="fixed left-0 right-0 bottom-11 z-10 border-t border-gray-300 bg-white px-4 py-1 shadow-lg">
+          <div className="fixed left-0 right-0 bottom-11 z-10 border-t border-(--border-color) bg-gray-300 px-4 py-1 shadow-lg">
             <SelectionFlyout />
           </div>
         </>
       ) : (
-        <div className="fixed left-0 right-0 bottom-0 z-10 border-t border-gray-300 bg-white px-4 py-3 shadow-lg">
+        <div className="fixed left-0 right-0 bottom-0 z-10 border-t border-(--border-color) bg-gray-300 px-4 py-3 shadow-lg">
           <SelectionFlyout />
         </div>
       )}

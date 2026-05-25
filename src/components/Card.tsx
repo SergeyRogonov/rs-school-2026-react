@@ -34,7 +34,7 @@ export default function Card({ pokemon }: CardProps) {
 
   return (
     <div
-      className="flex flex-row w-3xs rounded-md border-2 border-black p-2"
+      className="flex flex-row w-3xs rounded-md border-2 border-(--border-color)  p-2"
       onClick={handleClick}
       data-detail-trigger
     >
@@ -45,7 +45,7 @@ export default function Card({ pokemon }: CardProps) {
           onChange={onCheckboxChange}
           onClick={onCheckboxClick}
           aria-label={`Select ${pokemon.name}`}
-          className="h-6 w-6 accent-blue-600 focus:ring-2 focus:ring-blue-300 rounded"
+          className="h-6 w-6 accent-(--brand-header) focus:ring-2 focus:ring-(--border-color) rounded"
         />
         <div className="flex flex-col w-full gap-1">
           <div className="flex max-w-sm gap-2">

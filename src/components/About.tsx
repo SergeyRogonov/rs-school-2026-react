@@ -1,7 +1,7 @@
 export default function About() {
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+      <div className="bg-(--bg-secondary) rounded-lg shadow-(--card-shadow) p-6 mb-6">
         <h2 className="text-2xl font-semibold mb-4">About the App</h2>
         <p className="mb-4">
           This Pokémon Search App allows users to search for Pokémon by name or
@@ -15,7 +15,7 @@ export default function About() {
         </p>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-(--bg-secondary) rounded-lg shadow-(--card-shadow) p-6">
         <h2 className="text-2xl font-semibold mb-4">Author Information</h2>
         <p className="mb-4">
           This application was developed as part of the RS School React 2026
@@ -27,7 +27,7 @@ export default function About() {
             href="https://rs.school/courses/reactjs"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 underline"
+            className="text-(--brand-header) hover:text-(--text-secondary) underline"
           >
             RS School React Course
           </a>
@@ -41,7 +41,7 @@ export default function About() {
             href="https://github.com/SergeyRogonov"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 underline"
+            className="text-(--brand-header) hover:text-(--text-secondary) underline"
           >
             SergeyRogonov
           </a>
