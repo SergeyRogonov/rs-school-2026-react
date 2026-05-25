@@ -6,6 +6,7 @@ import CardList from './CardList';
 import Spinner from './Spinner';
 import Pagination from './Pagination.tsx';
 import TestErrorButton from './TestErrorButton.tsx';
+import SelectionFlyout from './SelectionFlyout';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { loadPokemon } from '../store/pokemonSlice';
@@ -56,8 +57,28 @@ export default function Layout() {
       }
     }, 0);
 
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        detailId &&
+        detailPanelRef.current &&
+        !detailPanelRef.current.contains(e.target as Node) &&
+        !(e.target as HTMLElement).closest('[data-detail-trigger]') &&
+        !(e.target as HTMLElement).closest('[data-pagination]')
+      ) {
+        const newParams = new URLSearchParams(searchParams);
+        newParams.delete('details');
+        setSearchParams(newParams);
+      }
+    };
+    if (detailId) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () =>
+        document.removeEventListener('mousedown', handleClickOutside);
+    }
+
     return () => clearTimeout(timer);
   }, [
+    detailId,
     dispatch,
     isAboutPage,
     lastSearchTerm,
@@ -96,6 +117,9 @@ export default function Layout() {
     <div className="flex flex-col min-h-screen">
       <div className="sticky top-0 z-20">
         <Header />
+      </div>
+      <div className="flex justify-end p-1">
+        <TestErrorButton />
       </div>
 
       <div className="flex flex-col flex-1 p-5 bg-[#d6fff2]">
@@ -142,19 +166,24 @@ export default function Layout() {
         </div>
       </div>
 
-      {!isAboutPage && !searchQuery && pokemon.length > 0 && (
-        <div className="sticky bottom-0 z-10 bg-[#d45d79] py-2">
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
+      {!isAboutPage && !searchQuery && pokemon.length > 0 ? (
+        <>
+          <div className="sticky bottom-0 z-20 bg-[#d45d79] py-2">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </div>
+          <div className="fixed left-0 right-0 bottom-11 z-10 border-t border-gray-300 bg-white px-4 py-1 shadow-lg">
+            <SelectionFlyout />
+          </div>
+        </>
+      ) : (
+        <div className="fixed left-0 right-0 bottom-0 z-10 border-t border-gray-300 bg-white px-4 py-3 shadow-lg">
+          <SelectionFlyout />
         </div>
       )}
-
-      <div className="fixed bottom-0.5 right-0.5 sm:bottom-2 sm:right-6 lg:bottom-2 lg:right-20 z-10">
-        <TestErrorButton />
-      </div>
     </div>
   );
 }
