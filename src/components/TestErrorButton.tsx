@@ -14,7 +14,7 @@ export default function TestErrorButton() {
   return (
     <button
       onClick={handleTestError}
-      className="px-0 py-0 sm:px-3 sm:py-1 font-bold text-sm bg-red-500 text-white rounded hover:bg-red-600 w-12 sm:w-auto whitespace-pre-line sm:whitespace-normal"
+      className="px-0 py-0 sm:px-3 sm:py-1 font-bold text-sm bg-red-700 text-white rounded hover:bg-red-800 w-12 sm:w-auto whitespace-pre-line sm:whitespace-normal"
     >
       Throw Error
     </button>

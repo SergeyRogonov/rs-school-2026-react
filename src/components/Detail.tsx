@@ -65,12 +65,12 @@ export default function Detail() {
   }
 
   return (
-    <div className="w-full p-4 border-l border-gray-300">
+    <div className="w-full p-4 border-l border-(--border-color)">
       <div className="flex justify-between items-center mb-4 ">
         <h2 className="flex text-2xl font-bold">Details</h2>
         <button
           onClick={handleClose}
-          className="px-3 py-1 rounded hover:bg-[#57d4ac] font-bold flex"
+          className="px-3 py-1 rounded hover:bg-(--border-color) font-bold flex"
         >
           X
         </button>
@@ -79,7 +79,7 @@ export default function Detail() {
       {loading && <Spinner />}
 
       {error && (
-        <div className="text-red-600">
+        <div className="text-(--brand-header)">
           <p className="font-semibold">Error</p>
           <p>{error}</p>
         </div>

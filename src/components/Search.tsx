@@ -25,13 +25,13 @@ export default function Search({ onSearch }: SearchProps) {
         onSubmit={handleSubmit}
       >
         <input
-          className="flex-1 px-3 py-2 sm:px-4 sm:py-2 text-sm sm:text-base border rounded max-w-xl"
+          className="flex-1 px-3 py-2 sm:px-4 sm:py-2 text-sm sm:text-base border rounded bg-(--bg-secondary) text-(--text-primary) max-w-xl"
           placeholder="Search by name or ID"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         ></input>
         <button
-          className="px-4 py-2 sm:px-6 sm:py-2 text-sm sm:text-base bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="px-4 py-2 sm:px-6 sm:py-2 font-semibold text-sm sm:text-base bg-(--brand-header) text-(--text-secondary) rounded hover:bg-(--border-color)"
           type="submit"
         >
           Search

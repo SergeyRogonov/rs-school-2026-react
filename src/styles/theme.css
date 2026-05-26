@@ -1,0 +1,25 @@
+:root {
+  --bg-primary: #d6fff2;
+  --bg-secondary: #ffffff;
+  --text-primary: #000000;
+  --text-secondary: #ffffff;
+  --border-color: #000000;
+  --card-shadow: 0 2px 8px rgba(5, 34, 26, 0.06);
+  --brand-header: #d45d79;
+}
+
+:root.dark {
+  --bg-primary: #1f2937;
+  --bg-secondary: #1f2937;
+  --text-primary: #e6fff9;
+  --text-secondary: #9fd6c7;
+  --border-color: #114b40;
+  --card-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+  --brand-header: #84273d;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s, color 0.3s;
+}
