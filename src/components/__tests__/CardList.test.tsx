@@ -1,12 +1,12 @@
 import { screen } from '@testing-library/react';
 import CardList from '../CardList';
-import { mockPokemon, renderWithRouter } from '../../test-utils/mocks';
+import { mockPokemonBase, renderWithRouter } from '../../test-utils/mocks';
 
 describe('CardList', () => {
   const multiplePokemon = [
-    mockPokemon,
-    { ...mockPokemon, id: 2, name: 'ivysaur' },
-    { ...mockPokemon, id: 3, name: 'venusaur' },
+    mockPokemonBase,
+    { ...mockPokemonBase, id: 2, name: 'ivysaur' },
+    { ...mockPokemonBase, id: 3, name: 'venusaur' },
   ];
 
   it('renders empty list when no pokemon provided', () => {
@@ -17,7 +17,7 @@ describe('CardList', () => {
   });
 
   it('renders single pokemon card', () => {
-    renderWithRouter(<CardList pokemon={[mockPokemon]} />);
+    renderWithRouter(<CardList pokemon={[mockPokemonBase]} />);
 
     expect(screen.getByText('bulbasaur')).toBeInTheDocument();
     expect(screen.getByText('#1')).toBeInTheDocument();

@@ -1,13 +1,21 @@
 import { screen, fireEvent, waitFor } from '@testing-library/react';
 import SelectionFlyout from '../SelectionFlyout';
-import { renderWithRouter } from '../../test-utils/mocks';
-import { fetchPokemonDetails } from '../../services/pokemonService';
-import { mockPokemon } from '../../test-utils/mocks';
-import { vi } from 'vitest';
+import { renderWithRouter, mockPokemonDetails } from '../../test-utils/mocks';
+import { type Mock } from 'vitest';
 
-vi.mock('../../services/pokemonService', () => ({
-  fetchPokemonDetails: vi.fn(),
-}));
+// Mock the entire pokemonApi module with the mock function defined inside
+vi.mock('../../store/pokemonApi', () => {
+  const mockUseLazyGetPokemonDetailsQuery = vi.fn();
+
+  return {
+    pokemonApi: {
+      useLazyGetPokemonDetailsQuery: mockUseLazyGetPokemonDetailsQuery,
+    },
+  };
+});
+
+// Now we need to get the mock function from the mocked module
+import { pokemonApi } from '../../store/pokemonApi';
 
 describe('SelectionFlyout', () => {
   beforeEach(() => {
@@ -15,6 +23,12 @@ describe('SelectionFlyout', () => {
   });
 
   it('does not render when there are no selected items', () => {
+    // Mock the hook to return a function and state
+    (pokemonApi.useLazyGetPokemonDetailsQuery as Mock).mockReturnValue([
+      vi.fn(),
+      { isLoading: false },
+    ]);
+
     renderWithRouter(<SelectionFlyout />);
 
     expect(screen.queryByText(/Selected items/i)).not.toBeInTheDocument();
@@ -27,6 +41,12 @@ describe('SelectionFlyout', () => {
   });
 
   it('renders selected count and buttons when items are selected', () => {
+    // Mock the hook to return a function and state
+    (pokemonApi.useLazyGetPokemonDetailsQuery as Mock).mockReturnValue([
+      vi.fn(),
+      { isLoading: false },
+    ]);
+
     renderWithRouter(<SelectionFlyout />, ['/'], {
       selection: { selectedIds: [1, 2] },
     });
@@ -41,6 +61,12 @@ describe('SelectionFlyout', () => {
   });
 
   it('clears selection when Unselect all is clicked', async () => {
+    // Mock the hook to return a function and state
+    (pokemonApi.useLazyGetPokemonDetailsQuery as Mock).mockReturnValue([
+      vi.fn(),
+      { isLoading: false },
+    ]);
+
     renderWithRouter(<SelectionFlyout />, ['/'], {
       selection: { selectedIds: [1, 2] },
     });
@@ -61,7 +87,18 @@ describe('SelectionFlyout', () => {
       .mockImplementation(() => {});
     const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click');
 
-    vi.mocked(fetchPokemonDetails).mockResolvedValue(mockPokemon);
+    // Create a mock promise with unwrap() method
+    const mockPromise = {
+      unwrap: vi.fn().mockResolvedValue([mockPokemonDetails]),
+    };
+
+    const mockFetchPokemonDetails = vi.fn().mockReturnValue(mockPromise);
+
+    // Mock the hook to return our mock function and state
+    (pokemonApi.useLazyGetPokemonDetailsQuery as Mock).mockReturnValue([
+      mockFetchPokemonDetails,
+      { isLoading: false },
+    ]);
 
     renderWithRouter(<SelectionFlyout />, ['/'], {
       selection: { selectedIds: [1] },
@@ -70,7 +107,8 @@ describe('SelectionFlyout', () => {
     fireEvent.click(screen.getByRole('button', { name: /download/i }));
 
     await waitFor(() => {
-      expect(fetchPokemonDetails).toHaveBeenCalledWith(1);
+      expect(mockFetchPokemonDetails).toHaveBeenCalledWith([1]);
+      expect(mockPromise.unwrap).toHaveBeenCalled();
       expect(createObjectURLSpy).toHaveBeenCalled();
       expect(clickSpy).toHaveBeenCalled();
       expect(revokeObjectURLSpy).toHaveBeenCalledWith('blob:url');

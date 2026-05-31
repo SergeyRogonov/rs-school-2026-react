@@ -2,7 +2,7 @@ import { screen, fireEvent, waitFor } from '@testing-library/react';
 import Card from '../Card';
 import {
   renderWithRouter,
-  mockPokemon,
+  mockPokemonBase,
   mockLocalStorage,
 } from '../../test-utils/mocks';
 import { useLocation } from 'react-router-dom';
@@ -20,7 +20,7 @@ describe('Card', () => {
   it('toggles selection when checkbox is clicked and does not change search params', async () => {
     renderWithRouter(
       <>
-        <Card pokemon={mockPokemon} />
+        <Card pokemon={mockPokemonBase} />
         <LocationDisplay />
       </>,
       ['/']
@@ -42,7 +42,7 @@ describe('Card', () => {
   it('sets details search param when card (not checkbox) is clicked', async () => {
     renderWithRouter(
       <>
-        <Card pokemon={mockPokemon} />
+        <Card pokemon={mockPokemonBase} />
         <LocationDisplay />
       </>,
       ['/']
@@ -57,7 +57,7 @@ describe('Card', () => {
   });
 
   it('renders checked when localStorage has the id selected', () => {
-    renderWithRouter(<Card pokemon={mockPokemon} />, ['/'], {
+    renderWithRouter(<Card pokemon={mockPokemonBase} />, ['/'], {
       selection: { selectedIds: [1] },
     });
 

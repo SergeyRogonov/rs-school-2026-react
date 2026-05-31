@@ -5,19 +5,21 @@ import { mockLocalStorage } from '../../test-utils/mocks';
 describe('Search', () => {
   const mockOnSearch = vi.fn();
 
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('renders search input and button', () => {
     render(<Search onSearch={mockOnSearch} />);
 
-    expect(
-      screen.getByPlaceholderText('Search by name or ID')
-    ).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Search by name')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Search' })).toBeInTheDocument();
   });
 
   it('calls onSearch when form is submitted', () => {
     render(<Search onSearch={mockOnSearch} />);
 
-    const input = screen.getByPlaceholderText('Search by name or ID');
+    const input = screen.getByPlaceholderText('Search by name');
     const button = screen.getByRole('button', { name: 'Search' });
 
     fireEvent.change(input, { target: { value: 'pikachu' } });
@@ -29,7 +31,7 @@ describe('Search', () => {
   it('handles empty search with only whitespace', () => {
     render(<Search onSearch={mockOnSearch} />);
 
-    const input = screen.getByPlaceholderText('Search by name or ID');
+    const input = screen.getByPlaceholderText('Search by name');
     fireEvent.change(input, { target: { value: '   ' } });
     fireEvent.submit(input.closest('form')!);
 
@@ -39,7 +41,7 @@ describe('Search', () => {
   it('trims whitespace from search query', () => {
     render(<Search onSearch={mockOnSearch} />);
 
-    const input = screen.getByPlaceholderText('Search by name or ID');
+    const input = screen.getByPlaceholderText('Search by name');
 
     fireEvent.change(input, { target: { value: '  pikachu  ' } });
     fireEvent.submit(input.closest('form')!);
@@ -50,7 +52,7 @@ describe('Search', () => {
   it('saves search term to localStorage', () => {
     render(<Search onSearch={mockOnSearch} />);
 
-    const input = screen.getByPlaceholderText('Search by name or ID');
+    const input = screen.getByPlaceholderText('Search by name');
 
     fireEvent.change(input, { target: { value: 'charizard' } });
     fireEvent.submit(input.closest('form')!);
@@ -67,7 +69,7 @@ describe('Search', () => {
     render(<Search onSearch={mockOnSearch} />);
 
     const input = screen.getByPlaceholderText(
-      'Search by name or ID'
+      'Search by name'
     ) as HTMLInputElement;
     expect(input.value).toBe('');
   });

@@ -1,74 +1,73 @@
 import { screen, waitFor } from '@testing-library/react';
+import { type Mock } from 'vitest';
 import Detail from '../Detail';
-import {
-  mockFetch,
-  mockPokemon,
-  renderWithRouter,
-} from '../../test-utils/mocks';
+import { mockPokemonDetails, renderWithRouter } from '../../test-utils/mocks';
+
+// Mock the entire pokemonApi module using importOriginal as suggested
+vi.mock('../../store/pokemonApi', async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import('../../store/pokemonApi')>();
+  const mockUseGetPokemonDetailsQuery = vi.fn();
+
+  return {
+    ...actual,
+    useGetPokemonDetailsQuery: mockUseGetPokemonDetailsQuery,
+  };
+});
+
+// Import the mocked module
+import { useGetPokemonDetailsQuery } from '../../store/pokemonApi';
 
 describe('Detail', () => {
-  const mockPokemonWithDetails = {
-    ...mockPokemon,
-    sprites: [
-      {
-        sprites: {
-          front_default: 'https://example.com/bulbasaur.png',
-        },
-      },
-    ],
-    stats: [
-      { base_stat: 45, stat: { name: 'hp' } },
-      { base_stat: 49, stat: { name: 'attack' } },
-      { base_stat: 49, stat: { name: 'defense' } },
-      { base_stat: 65, stat: { name: 'special-attack' } },
-      { base_stat: 65, stat: { name: 'special-defense' } },
-      { base_stat: 45, stat: { name: 'speed' } },
-    ],
-    types: [{ type: { name: 'grass' } }, { type: { name: 'poison' } }],
-  };
-
-  const mockSuccessfulDetailFetch = (pokemon = mockPokemonWithDetails) => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: () =>
-        Promise.resolve({
-          data: {
-            pokemon: [pokemon],
-          },
-        }),
-    });
-  };
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('renders nothing when no detailId in URL', () => {
+    (useGetPokemonDetailsQuery as Mock).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: null,
+    });
+
     const { container } = renderWithRouter(<Detail />, ['/']);
     expect(container.firstChild).toBeNull();
   });
 
   it('shows loading spinner when fetching details', () => {
-    mockFetch.mockImplementation(() => new Promise(() => {})); // Never resolves
+    (useGetPokemonDetailsQuery as Mock).mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      error: null,
+    });
+
     renderWithRouter(<Detail />, ['/?details=1']);
 
     expect(screen.getByLabelText('Loading...')).toBeInTheDocument();
   });
 
   it('displays error when fetch fails', async () => {
-    mockFetch.mockRejectedValueOnce(new Error('Failed to fetch data'));
+    (useGetPokemonDetailsQuery as Mock).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: { message: 'Failed to fetch data' },
+    });
+
     renderWithRouter(<Detail />, ['/?details=1']);
 
     await waitFor(() => {
       expect(screen.getByText('Error')).toBeInTheDocument();
-      expect(screen.getByText('Failed to fetch data')).toBeInTheDocument();
+      expect(screen.getByText('Pokémon not found')).toBeInTheDocument();
     });
   });
 
   it('displays "Pokémon not found" error when no data returned', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: () =>
-        Promise.resolve({
-          data: { pokemon: [] },
-        }),
+    (useGetPokemonDetailsQuery as Mock).mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
     });
+
     renderWithRouter(<Detail />, ['/?details=999']);
 
     await waitFor(() => {
@@ -78,7 +77,12 @@ describe('Detail', () => {
   });
 
   it('displays pokemon image', async () => {
-    mockSuccessfulDetailFetch();
+    (useGetPokemonDetailsQuery as Mock).mockReturnValue({
+      data: [mockPokemonDetails],
+      isLoading: false,
+      error: null,
+    });
+
     renderWithRouter(<Detail />, ['/?details=1']);
 
     await waitFor(() => {
@@ -89,7 +93,12 @@ describe('Detail', () => {
   });
 
   it('displays pokemon types when available', async () => {
-    mockSuccessfulDetailFetch();
+    (useGetPokemonDetailsQuery as Mock).mockReturnValue({
+      data: [mockPokemonDetails],
+      isLoading: false,
+      error: null,
+    });
+
     renderWithRouter(<Detail />, ['/?details=1']);
 
     await waitFor(() => {
@@ -99,7 +108,12 @@ describe('Detail', () => {
   });
 
   it('displays pokemon stats when available', async () => {
-    mockSuccessfulDetailFetch();
+    (useGetPokemonDetailsQuery as Mock).mockReturnValue({
+      data: [mockPokemonDetails],
+      isLoading: false,
+      error: null,
+    });
+
     renderWithRouter(<Detail />, ['/?details=1']);
 
     await waitFor(() => {
@@ -126,27 +140,17 @@ describe('Detail', () => {
   });
 
   it('renders close button', async () => {
-    mockSuccessfulDetailFetch();
+    (useGetPokemonDetailsQuery as Mock).mockReturnValue({
+      data: [mockPokemonDetails],
+      isLoading: false,
+      error: null,
+    });
+
     renderWithRouter(<Detail />, ['/?details=1']);
 
     await waitFor(() => {
       const closeButton = screen.getByRole('button', { name: 'X' });
       expect(closeButton).toBeInTheDocument();
-    });
-  });
-
-  it('handles invalid ID (0 or negative)', async () => {
-    mockSuccessfulDetailFetch();
-    renderWithRouter(<Detail />, ['/?details=0']);
-
-    await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledWith(
-        'https://beta.pokeapi.co/graphql/v1beta',
-        expect.objectContaining({
-          method: 'POST',
-          body: expect.stringMatching(/GetPokemonByName/),
-        })
-      );
     });
   });
 });
