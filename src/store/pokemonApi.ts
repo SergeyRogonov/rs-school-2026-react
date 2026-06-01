@@ -151,7 +151,9 @@ export const pokemonApi = createApi({
   }),
 });
 
-function transformPokemonBase(rawPokemon: RawPokemonResponse): PokemonBase {
+export function transformPokemonBase(
+  rawPokemon: RawPokemonResponse
+): PokemonBase {
   return {
     id: rawPokemon.id,
     name: rawPokemon.name,
@@ -163,7 +165,7 @@ function transformPokemonBase(rawPokemon: RawPokemonResponse): PokemonBase {
   };
 }
 
-function transformPokemonDetails(
+export function transformPokemonDetails(
   rawPokemon: RawPokemonResponse
 ): PokemonDetails {
   return {

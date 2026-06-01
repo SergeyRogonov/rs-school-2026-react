@@ -6,6 +6,8 @@ import CardList from './CardList';
 import Spinner from './Spinner';
 import Pagination from './Pagination.tsx';
 import TestErrorButton from './TestErrorButton.tsx';
+import { useDispatch } from 'react-redux';
+import { pokemonApi } from '../store/pokemonApi';
 import SelectionFlyout from './SelectionFlyout';
 import {
   useGetPokemonListQuery,
@@ -20,6 +22,7 @@ export default function Layout() {
   const searchQuery = searchParams.get('search') || '';
   const totalPages = Math.ceil(TOTAL_POKEMON_COUNT / ITEMS_PER_PAGE);
   const detailId = searchParams.get('details');
+  const dispatch = useDispatch();
 
   const {
     data: pokemons = [],
@@ -90,9 +93,26 @@ export default function Layout() {
     setSearchParams(newParams);
   };
 
+  const handleInvalidateAllData = () => {
+    dispatch(
+      pokemonApi.util.invalidateTags([
+        'PokemonList',
+        'PokemonSearch',
+        'PokemonDetails',
+      ])
+    );
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="flex justify-end p-1">
+      <div className="flex justify-end p-1"></div>
+      <div className="flex justify-end p-1 gap-2">
+        <button
+          onClick={handleInvalidateAllData}
+          className="rounded bg-blue-500 px-2 py-1 text-[10px] font-medium text-white hover:bg-blue-600"
+        >
+          Invalidate All
+        </button>
         <TestErrorButton />
       </div>
 

@@ -2,10 +2,13 @@ import { useSearchParams } from 'react-router-dom';
 import Spinner from './Spinner';
 import { useGetPokemonDetailsQuery } from '../store/pokemonApi';
 import { typeColors } from '../utils/typeColors.ts';
+import { useDispatch } from 'react-redux';
+import { pokemonApi } from '../store/pokemonApi';
 
 export default function Detail() {
   const [searchParams, setSearchParams] = useSearchParams();
   const detailId = searchParams.get('details');
+  const dispatch = useDispatch();
 
   const {
     data: pokemonArray,
@@ -24,10 +27,22 @@ export default function Detail() {
 
   if (!detailId) return null;
 
+  const handleInvalidateDetails = () => {
+    dispatch(
+      pokemonApi.util.invalidateTags([{ type: 'PokemonDetails', id: detailId }])
+    );
+  };
+
   return (
     <div className="w-full p-4 border-l border-(--border-color)">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Details</h2>
+        <button
+          onClick={handleInvalidateDetails}
+          className="rounded bg-blue-500 px-2 py-1 text-[10px] font-medium text-white hover:bg-blue-600"
+        >
+          Invalidate Details
+        </button>
         <button
           onClick={handleClose}
           className="px-3 py-1 rounded hover:bg-(--bg-primary-hover) font-bold"

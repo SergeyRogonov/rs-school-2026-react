@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { setSelected } from '../store/selectionSlice';
+import { unselectAll } from '../store/selectionSlice';
 import { pokemonApi } from '../store/pokemonApi';
 import type { PokemonDetails } from '../types/types';
 import { downloadCsv } from '../utils/donwloadCSVHelpers';
@@ -12,7 +12,7 @@ export default function SelectionFlyout() {
   const [fetchPokemonDetails] = pokemonApi.useLazyGetPokemonDetailsQuery();
 
   const handleUnselectAll = () => {
-    dispatch(setSelected([]));
+    dispatch(unselectAll());
   };
 
   const handleDownload = async () => {

@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, fireEvent } from '@testing-library/react';
 import { type Mock } from 'vitest';
 import Detail from '../Detail';
 import { mockPokemonDetails, renderWithRouter } from '../../test-utils/mocks';
@@ -151,6 +151,24 @@ describe('Detail', () => {
     await waitFor(() => {
       const closeButton = screen.getByRole('button', { name: 'X' });
       expect(closeButton).toBeInTheDocument();
+    });
+  });
+
+  it('removes details query param when close button is clicked', async () => {
+    (useGetPokemonDetailsQuery as Mock).mockReturnValue({
+      data: [mockPokemonDetails],
+      isLoading: false,
+      error: null,
+    });
+
+    const { container } = renderWithRouter(<Detail />, ['/?details=1']);
+
+    const closeButton = screen.getByRole('button', { name: 'X' });
+
+    fireEvent.click(closeButton);
+
+    await waitFor(() => {
+      expect(container.firstChild).toBeNull();
     });
   });
 });

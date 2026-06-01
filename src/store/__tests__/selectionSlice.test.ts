@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import selectionReducer, {
   toggleSelected,
-  select,
-  unselect,
-  setSelected,
+  unselectAll,
 } from '../selectionSlice';
 
 describe('selectionSlice reducer', () => {
@@ -19,26 +17,31 @@ describe('selectionSlice reducer', () => {
     expect(nextState.selectedIds).toEqual([]);
   });
 
-  it('select action adds an id only once', () => {
-    const first = selectionReducer({ selectedIds: [] }, select(1));
+  it('toggleSelected removes id when already selected', () => {
+    const first = selectionReducer({ selectedIds: [] }, toggleSelected(1));
     expect(first.selectedIds).toEqual([1]);
 
-    const second = selectionReducer(first, select(1));
-    expect(second.selectedIds).toEqual([1]);
+    const second = selectionReducer(first, toggleSelected(1));
+    expect(second.selectedIds).toEqual([]);
   });
 
-  it('unselect action removes an id', () => {
-    const nextState = selectionReducer({ selectedIds: [1, 2] }, unselect(1));
+  it('toggleSelected removes specific id from multiple selections', () => {
+    const nextState = selectionReducer(
+      { selectedIds: [1, 2] },
+      toggleSelected(1)
+    );
 
     expect(nextState.selectedIds).toEqual([2]);
   });
 
-  it('setSelected replaces the selectedIds array', () => {
-    const nextState = selectionReducer(
+  it('unselectAll clears all selections and toggleSelected adds new ones', () => {
+    const clearedState = selectionReducer(
       { selectedIds: [1, 2] },
-      setSelected([3, 4])
+      unselectAll()
     );
+    const nextState = selectionReducer(clearedState, toggleSelected(3));
+    const finalState = selectionReducer(nextState, toggleSelected(4));
 
-    expect(nextState.selectedIds).toEqual([3, 4]);
+    expect(finalState.selectedIds).toEqual([3, 4]);
   });
 });
