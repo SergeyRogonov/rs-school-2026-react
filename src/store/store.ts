@@ -1,22 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit';
-import pokemonReducer from './pokemonSlice';
 import selectionReducer from './selectionSlice';
+import { pokemonApi } from './pokemonApi';
 
 export const store = configureStore({
   reducer: {
-    pokemon: pokemonReducer,
     selection: selectionReducer,
+    [pokemonApi.reducerPath]: pokemonApi.reducer,
   },
-});
-
-store.subscribe(() => {
-  try {
-    const state = store.getState();
-    const ids = state.selection.selectedIds;
-    localStorage.setItem('selectedIds', JSON.stringify(ids));
-  } catch (error) {
-    console.warn('Unable to persist selectedIds to localStorage', error);
-  }
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(pokemonApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

@@ -1,8 +1,8 @@
 import Card from './Card';
-import type { Pokemon } from '../types/types.ts';
+import type { PokemonBase } from '../types/types.ts';
 
 interface CardListProps {
-  pokemon: Pokemon[];
+  pokemon: PokemonBase[];
 }
 
 export default function CardList({ pokemon }: CardListProps) {

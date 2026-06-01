@@ -4,19 +4,8 @@ interface SelectionState {
   selectedIds: number[];
 }
 
-const STORAGE_KEY = 'selectedIds';
-
-const loadInitial = (): number[] => {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as number[]) : [];
-  } catch {
-    return [];
-  }
-};
-
 const initialState: SelectionState = {
-  selectedIds: loadInitial(),
+  selectedIds: [],
 };
 
 const selectionSlice = createSlice({
@@ -32,21 +21,12 @@ const selectionSlice = createSlice({
         state.selectedIds.push(id);
       }
     },
-    select(state, action: PayloadAction<number>) {
-      if (!state.selectedIds.includes(action.payload)) {
-        state.selectedIds.push(action.payload);
-      }
-    },
-    unselect(state, action: PayloadAction<number>) {
-      state.selectedIds = state.selectedIds.filter((i) => i !== action.payload);
-    },
-    setSelected(state, action: PayloadAction<number[]>) {
-      state.selectedIds = action.payload;
+    unselectAll(state) {
+      state.selectedIds = [];
     },
   },
 });
 
-export const { toggleSelected, select, unselect, setSelected } =
-  selectionSlice.actions;
+export const { toggleSelected, unselectAll } = selectionSlice.actions;
 export default selectionSlice.reducer;
 export type { SelectionState };

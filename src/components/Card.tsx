@@ -1,11 +1,11 @@
-import type { Pokemon } from '../types/types.ts';
+import type { PokemonBase } from '../types/types.ts';
 import { useSearchParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { toggleSelected } from '../store/selectionSlice';
 import type { ChangeEvent } from 'react';
 
 interface CardProps {
-  pokemon: Pokemon;
+  pokemon: PokemonBase;
 }
 
 export default function Card({ pokemon }: CardProps) {

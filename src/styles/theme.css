@@ -1,21 +1,27 @@
 :root {
   --bg-primary: #d6fff2;
   --bg-secondary: #ffffff;
+  --bg-primary-hover: #c0ffe6;
+  --bg-secondary-hover: #f2f2f2;
   --text-primary: #000000;
   --text-secondary: #ffffff;
   --border-color: #000000;
   --card-shadow: 0 2px 8px rgba(5, 34, 26, 0.06);
   --brand-header: #d45d79;
+  --brand-header-hover: #c14b68;
 }
 
 :root.dark {
   --bg-primary: #1f2937;
   --bg-secondary: #1f2937;
+  --bg-primary-hover: #27333f;
+  --bg-secondary-hover: #2a3744;
   --text-primary: #e6fff9;
   --text-secondary: #9fd6c7;
   --border-color: #114b40;
   --card-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
   --brand-header: #84273d;
+  --brand-header-hover: #913248;
 }
 
 body {

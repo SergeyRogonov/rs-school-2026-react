@@ -1,4 +1,4 @@
-export interface Pokemon {
+export interface PokemonBase {
   id: number;
   name: string;
   height: number;
@@ -6,7 +6,10 @@ export interface Pokemon {
   sprites: {
     front_default: string | null;
   };
-  stats?: {
+}
+
+export interface PokemonDetails extends PokemonBase {
+  stats: {
     hp: number;
     attack: number;
     defense: number;
@@ -14,5 +17,5 @@ export interface Pokemon {
     special_defense: number;
     speed: number;
   };
-  types?: string[];
+  types: string[];
 }

@@ -15,6 +15,13 @@ describe('Header', () => {
   });
 
   it('renders links, toggles theme, and Home clears lastSearchTerm + navigates', async () => {
+    // Mock getItem to return different values for different keys
+    mockLocalStorage.getItem.mockImplementation((key) => {
+      if (key === 'theme') return 'light';
+      if (key === 'lastSearchTerm') return 'some-search-term';
+      return null;
+    });
+
     renderWithRouter(
       <>
         <Header />
@@ -35,9 +42,11 @@ describe('Header', () => {
     const home = screen.getByText('Home');
     fireEvent.click(home);
     await waitFor(() => {
-      expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(
-        'lastSearchTerm'
+      expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
+        'lastSearchTerm',
+        ''
       );
+
       expect(screen.getByTestId('location').textContent).toMatch(/page=1/);
     });
   });
