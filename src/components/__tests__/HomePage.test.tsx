@@ -1,15 +1,17 @@
 import { screen, waitFor, fireEvent } from '@testing-library/react';
-import { useLocation } from 'react-router-dom';
 import { type Mock } from 'vitest';
-import Layout from '../Layout';
+import { useSearchParams, useRouter } from 'next/navigation';
+import HomePage from '../HomePage';
 import { TOTAL_POKEMON_COUNT, ITEMS_PER_PAGE } from '../../constants/constants';
-import {
-  mockLocalStorage,
-  mockPokemonBase,
-  renderWithRouter,
-} from '../../test-utils/mocks';
+import { mockPokemonBase, renderWithProviders } from '../../test-utils/mocks';
+import { mockLocalStorage } from '../../test-utils/setup';
 
-// Mock the entire pokemonApi module using importOriginal as suggested
+vi.mock('next/navigation', () => ({
+  useSearchParams: vi.fn(),
+  useRouter: vi.fn(),
+}));
+
+// Mock the entire pokemonApi module using importOriginal
 vi.mock('../../store/pokemonApi', async (importOriginal) => {
   const actual =
     await importOriginal<typeof import('../../store/pokemonApi')>();
@@ -29,17 +31,22 @@ import {
   useSearchPokemonQuery,
 } from '../../store/pokemonApi';
 
-function LocationDisplay() {
-  const location = useLocation();
-  return <div data-testid="location-display">{location.search}</div>;
-}
+describe('HomePage', () => {
+  let mockReplace: Mock;
 
-describe('Layout', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    mockReplace = vi.fn();
+
+    (useRouter as Mock).mockReturnValue({
+      replace: mockReplace,
+    });
+
+    (useSearchParams as Mock).mockReturnValue(new URLSearchParams());
+
     mockLocalStorage.getItem.mockReturnValue(null);
 
-    // Default mock for useSearchPokemonQuery (for when called with skipToken)
     (useSearchPokemonQuery as Mock).mockReturnValue({
       data: undefined,
       error: undefined,
@@ -54,7 +61,7 @@ describe('Layout', () => {
       isFetching: false,
     });
 
-    renderWithRouter(<Layout />);
+    renderWithProviders(<HomePage />);
 
     expect(screen.getByPlaceholderText('Search by name')).toBeInTheDocument();
     expect(screen.getByText('Results')).toBeInTheDocument();
@@ -67,7 +74,7 @@ describe('Layout', () => {
       isFetching: true,
     });
 
-    renderWithRouter(<Layout />);
+    renderWithProviders(<HomePage />);
 
     expect(screen.getByLabelText('Loading...')).toBeInTheDocument();
   });
@@ -79,7 +86,7 @@ describe('Layout', () => {
       isFetching: false,
     });
 
-    renderWithRouter(<Layout />);
+    renderWithProviders(<HomePage />);
 
     await waitFor(() => {
       expect(screen.getByText('Results')).toBeInTheDocument();
@@ -94,7 +101,7 @@ describe('Layout', () => {
       isFetching: false,
     });
 
-    renderWithRouter(<Layout />);
+    renderWithProviders(<HomePage />);
 
     await waitFor(() => {
       expect(screen.getByText('Error loading Pokémon.')).toBeInTheDocument();
@@ -108,7 +115,11 @@ describe('Layout', () => {
       isFetching: false,
     });
 
-    renderWithRouter(<Layout />, ['/?search=nonexistent']);
+    (useSearchParams as Mock).mockReturnValue(
+      new URLSearchParams('search=nonexistent')
+    );
+
+    renderWithProviders(<HomePage />);
 
     await waitFor(() => {
       expect(
@@ -125,7 +136,11 @@ describe('Layout', () => {
       isFetching: false,
     });
 
-    renderWithRouter(<Layout />, ['/?search=bulbasaur']);
+    (useSearchParams as Mock).mockReturnValue(
+      new URLSearchParams('search=bulbasaur')
+    );
+
+    renderWithProviders(<HomePage />);
 
     await waitFor(() => {
       expect(screen.getByText('bulbasaur')).toBeInTheDocument();
@@ -140,7 +155,7 @@ describe('Layout', () => {
       isFetching: false,
     });
 
-    renderWithRouter(<Layout />);
+    renderWithProviders(<HomePage />);
 
     await waitFor(() => {
       expect(screen.getByText('Results')).toBeInTheDocument();
@@ -156,7 +171,7 @@ describe('Layout', () => {
         isFetching: false,
       });
 
-      renderWithRouter(<Layout />);
+      renderWithProviders(<HomePage />);
 
       await waitFor(() => {
         expect(screen.getByText('Results')).toBeInTheDocument();
@@ -174,7 +189,11 @@ describe('Layout', () => {
         isFetching: false,
       });
 
-      renderWithRouter(<Layout />, ['/?search=bulbasaur']);
+      (useSearchParams as Mock).mockReturnValue(
+        new URLSearchParams('search=bulbasaur')
+      );
+
+      renderWithProviders(<HomePage />);
 
       await waitFor(() => {
         expect(screen.getByText('bulbasaur')).toBeInTheDocument();
@@ -192,12 +211,13 @@ describe('Layout', () => {
       isFetching: false,
     });
 
-    // Mock the Detail component that would be rendered by Outlet
     vi.mock('../Detail', () => ({
       default: () => <div data-testid="mock-detail">Mock Detail</div>,
     }));
 
-    renderWithRouter(<Layout />, ['/?details=1']);
+    (useSearchParams as Mock).mockReturnValue(new URLSearchParams('details=1'));
+
+    renderWithProviders(<HomePage />);
 
     await waitFor(() => {
       // Check that the main content area has the correct class for reduced width
@@ -214,7 +234,7 @@ describe('Layout', () => {
         isFetching: false,
       });
 
-      renderWithRouter(<Layout />);
+      renderWithProviders(<HomePage />);
 
       await waitFor(() => {
         expect(screen.getByText('Results')).toBeInTheDocument();
@@ -235,7 +255,11 @@ describe('Layout', () => {
         isFetching: false,
       });
 
-      renderWithRouter(<Layout />, ['/?search=bulbasaur']);
+      (useSearchParams as Mock).mockReturnValue(
+        new URLSearchParams('search=bulbasaur')
+      );
+
+      renderWithProviders(<HomePage />);
 
       await waitFor(() => {
         expect(screen.getByText('bulbasaur')).toBeInTheDocument();
@@ -257,27 +281,19 @@ describe('Layout', () => {
         isFetching: false,
       });
 
-      renderWithRouter(
-        <>
-          <Layout />
-          <LocationDisplay />
-        </>,
-        ['/?page=1']
-      );
+      (useSearchParams as Mock).mockReturnValue(new URLSearchParams('page=1'));
+
+      renderWithProviders(<HomePage />);
 
       await waitFor(() => {
         expect(screen.getByText('Results')).toBeInTheDocument();
       });
 
-      // Click the Next button
       const nextButton = screen.getByText('Next');
       fireEvent.click(nextButton);
 
       await waitFor(() => {
-        // Check that page parameter was updated to 2
-        const locationDisplay = screen.getByTestId('location-display');
-        expect(locationDisplay.textContent).toContain('page=2');
-        expect(locationDisplay.textContent).not.toContain('page=1');
+        expect(mockReplace).toHaveBeenCalledWith('?page=2');
       });
     });
 
@@ -288,27 +304,19 @@ describe('Layout', () => {
         isFetching: false,
       });
 
-      renderWithRouter(
-        <>
-          <Layout />
-          <LocationDisplay />
-        </>,
-        ['/?page=2']
-      );
+      (useSearchParams as Mock).mockReturnValue(new URLSearchParams('page=2'));
+
+      renderWithProviders(<HomePage />);
 
       await waitFor(() => {
         expect(screen.getByText('Results')).toBeInTheDocument();
       });
 
-      // Click the Previous button
       const prevButton = screen.getByText('Previous');
       fireEvent.click(prevButton);
 
       await waitFor(() => {
-        // Check that page parameter was updated to 1
-        const locationDisplay = screen.getByTestId('location-display');
-        expect(locationDisplay.textContent).toContain('page=1');
-        expect(locationDisplay.textContent).not.toContain('page=2');
+        expect(mockReplace).toHaveBeenCalledWith('?page=1');
       });
     });
 
@@ -324,27 +332,26 @@ describe('Layout', () => {
         default: () => <div data-testid="mock-detail">Mock Detail</div>,
       }));
 
-      renderWithRouter(
-        <>
-          <Layout />
-          <LocationDisplay />
-        </>,
-        ['/?details=1&page=1']
+      (useSearchParams as Mock).mockReturnValue(
+        new URLSearchParams('details=1&page=1')
       );
+
+      renderWithProviders(<HomePage />);
 
       await waitFor(() => {
         expect(screen.getByText('Results')).toBeInTheDocument();
       });
 
-      // Click the Next button
       const nextButton = screen.getByText('Next');
       fireEvent.click(nextButton);
 
       await waitFor(() => {
-        // Check that both details and page parameters are preserved
-        const locationDisplay = screen.getByTestId('location-display');
-        expect(locationDisplay.textContent).toContain('details=1');
-        expect(locationDisplay.textContent).toContain('page=2');
+        expect(mockReplace).toHaveBeenCalledWith(
+          expect.stringContaining('details=1')
+        );
+        expect(mockReplace).toHaveBeenCalledWith(
+          expect.stringContaining('page=2')
+        );
       });
     });
 
@@ -355,7 +362,9 @@ describe('Layout', () => {
         isFetching: false,
       });
 
-      renderWithRouter(<Layout />, ['/?page=1']);
+      (useSearchParams as Mock).mockReturnValue(new URLSearchParams('page=1'));
+
+      renderWithProviders(<HomePage />);
 
       await waitFor(() => {
         expect(screen.getByText('Results')).toBeInTheDocument();
@@ -374,7 +383,11 @@ describe('Layout', () => {
 
       const totalPages = Math.ceil(TOTAL_POKEMON_COUNT / ITEMS_PER_PAGE);
 
-      renderWithRouter(<Layout />, [`/?page=${totalPages}`]);
+      (useSearchParams as Mock).mockReturnValue(
+        new URLSearchParams(`page=${totalPages}`)
+      );
+
+      renderWithProviders(<HomePage />);
 
       await waitFor(() => {
         expect(screen.getByText('Results')).toBeInTheDocument();

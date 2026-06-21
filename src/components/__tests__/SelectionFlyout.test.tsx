@@ -1,6 +1,9 @@
 import { screen, fireEvent, waitFor } from '@testing-library/react';
 import SelectionFlyout from '../SelectionFlyout';
-import { renderWithRouter, mockPokemonDetails } from '../../test-utils/mocks';
+import {
+  mockPokemonDetails,
+  renderWithProviders,
+} from '../../test-utils/mocks';
 import { type Mock } from 'vitest';
 
 // Mock the entire pokemonApi module with the mock function defined inside
@@ -29,7 +32,7 @@ describe('SelectionFlyout', () => {
       { isLoading: false },
     ]);
 
-    renderWithRouter(<SelectionFlyout />);
+    renderWithProviders(<SelectionFlyout />);
 
     expect(screen.queryByText(/Selected items/i)).not.toBeInTheDocument();
     expect(
@@ -47,7 +50,7 @@ describe('SelectionFlyout', () => {
       { isLoading: false },
     ]);
 
-    renderWithRouter(<SelectionFlyout />, ['/'], {
+    renderWithProviders(<SelectionFlyout />, {
       selection: { selectedIds: [1, 2] },
     });
 
@@ -67,7 +70,7 @@ describe('SelectionFlyout', () => {
       { isLoading: false },
     ]);
 
-    renderWithRouter(<SelectionFlyout />, ['/'], {
+    renderWithProviders(<SelectionFlyout />, {
       selection: { selectedIds: [1, 2] },
     });
 
@@ -100,7 +103,7 @@ describe('SelectionFlyout', () => {
       { isLoading: false },
     ]);
 
-    renderWithRouter(<SelectionFlyout />, ['/'], {
+    renderWithProviders(<SelectionFlyout />, {
       selection: { selectedIds: [1] },
     });
 

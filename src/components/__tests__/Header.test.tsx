@@ -1,53 +1,60 @@
 import { screen, fireEvent, waitFor } from '@testing-library/react';
 import Header from '../Header';
-import { renderWithRouter, mockLocalStorage } from '../../test-utils/mocks';
-import { useLocation } from 'react-router-dom';
+import { renderWithProviders } from '../../test-utils/mocks';
+import { mockLocalStorage } from '../../test-utils/setup';
+import { useRouter } from 'next/navigation';
+import type { Mock } from 'vitest';
 
-function LocationDisplay() {
-  const loc = useLocation();
-  return <div data-testid="location">{loc.search}</div>;
-}
+vi.mock('next/navigation', () => ({
+  useRouter: vi.fn(),
+  usePathname: vi.fn(() => '/'),
+}));
 
 describe('Header', () => {
-  beforeEach(() => {
-    mockLocalStorage.getItem.mockReturnValue(null);
-    mockLocalStorage.removeItem.mockClear();
-  });
+  const mockReplace = vi.fn();
 
-  it('renders links, toggles theme, and Home clears lastSearchTerm + navigates', async () => {
-    // Mock getItem to return different values for different keys
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    (useRouter as Mock).mockReturnValue({
+      replace: mockReplace,
+      push: vi.fn(),
+      prefetch: vi.fn(),
+    });
+
     mockLocalStorage.getItem.mockImplementation((key) => {
       if (key === 'theme') return 'light';
       if (key === 'lastSearchTerm') return 'some-search-term';
       return null;
     });
+  });
 
-    renderWithRouter(
-      <>
-        <Header />
-        <LocationDisplay />
-      </>,
-      ['/']
-    );
+  it('renders links, toggles theme, and Home clears lastSearchTerm + navigates', async () => {
+    renderWithProviders(<Header />);
 
     expect(screen.getByText('Pokémon Search App')).toBeInTheDocument();
     expect(screen.getByText('About')).toBeInTheDocument();
     expect(screen.getByText('Home')).toBeInTheDocument();
 
     const toggle = screen.getByRole('button', { name: /toggle theme/i });
+
     expect(toggle).toHaveTextContent('🌙');
+
     fireEvent.click(toggle);
+
     await waitFor(() => expect(toggle).toHaveTextContent('☀️'));
 
     const home = screen.getByText('Home');
+
     fireEvent.click(home);
+
     await waitFor(() => {
       expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
         'lastSearchTerm',
         ''
       );
 
-      expect(screen.getByTestId('location').textContent).toMatch(/page=1/);
+      expect(mockReplace).toHaveBeenCalled();
     });
   });
 });

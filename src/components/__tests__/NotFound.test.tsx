@@ -1,16 +1,16 @@
 import { screen } from '@testing-library/react';
-import NotFound from './not-found';
-import { renderWithRouter } from '../test-utils/mocks';
+import NotFound from '../NotFound';
+import { renderWithProviders } from '../../test-utils/mocks';
 
 describe('NotFound', () => {
   it('renders 404 page title', () => {
-    renderWithRouter(<NotFound />);
+    renderWithProviders(<NotFound />);
 
     expect(screen.getByText('404 - Page Not Found')).toBeInTheDocument();
   });
 
   it('renders page not found message', () => {
-    renderWithRouter(<NotFound />);
+    renderWithProviders(<NotFound />);
 
     expect(
       screen.getByText(/The page you are looking for does not exist/)
@@ -18,7 +18,7 @@ describe('NotFound', () => {
   });
 
   it('renders return to home link', () => {
-    renderWithRouter(<NotFound />);
+    renderWithProviders(<NotFound />);
 
     const homeLink = screen.getByRole('link', { name: 'Return to Home' });
     expect(homeLink).toBeInTheDocument();

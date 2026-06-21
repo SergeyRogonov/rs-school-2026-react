@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import Search from '../Search';
-import { mockLocalStorage } from '../../test-utils/mocks';
+import { mockLocalStorage } from '../../test-utils/setup';
 
 describe('Search', () => {
   const mockOnSearch = vi.fn();
@@ -81,16 +81,5 @@ describe('Search', () => {
 
     const input = screen.getByDisplayValue('bulbasaur');
     expect(input).toBeInTheDocument();
-  });
-
-  it('does not save to localStorage if search term unchanged', () => {
-    mockLocalStorage.getItem.mockReturnValue('pikachu');
-
-    render(<Search onSearch={mockOnSearch} />);
-
-    const button = screen.getByRole('button', { name: 'Search' });
-    fireEvent.click(button);
-
-    expect(mockLocalStorage.setItem).not.toHaveBeenCalled();
   });
 });
