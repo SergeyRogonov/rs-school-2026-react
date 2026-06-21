@@ -1,4 +1,6 @@
-import { useSearchParams } from 'react-router-dom';
+'use client';
+
+import { useSearchParams, useRouter } from 'next/navigation';
 import Spinner from './Spinner';
 import { useGetPokemonDetailsQuery } from '../store/pokemonApi';
 import { typeColors } from '../utils/typeColors.ts';
@@ -6,7 +8,8 @@ import { useDispatch } from 'react-redux';
 import { pokemonApi } from '../store/pokemonApi';
 
 export default function Detail() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const detailId = searchParams.get('details');
   const dispatch = useDispatch();
 
@@ -18,11 +21,10 @@ export default function Detail() {
 
   const pokemon = pokemonArray?.[0] ?? null;
 
-  // Handle closing the detail panel
   const handleClose = () => {
     const newParams = new URLSearchParams(searchParams);
     newParams.delete('details');
-    setSearchParams(newParams);
+    router.replace(`?${newParams.toString()}`);
   };
 
   if (!detailId) return null;

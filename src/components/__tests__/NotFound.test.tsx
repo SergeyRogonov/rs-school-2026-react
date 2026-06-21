@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react';
-import NotFound from '../NotFound';
-import { renderWithRouter } from '../../test-utils/mocks';
+import NotFound from './not-found';
+import { renderWithRouter } from '../test-utils/mocks';
 
 describe('NotFound', () => {
   it('renders 404 page title', () => {

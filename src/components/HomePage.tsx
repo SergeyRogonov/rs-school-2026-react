@@ -1,11 +1,14 @@
+'use client';
+
 import { useEffect, useRef } from 'react';
-import { useSearchParams, Outlet } from 'react-router-dom';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { skipToken } from '@reduxjs/toolkit/query';
 import Search from './Search';
 import CardList from './CardList';
 import Spinner from './Spinner';
 import Pagination from './Pagination.tsx';
 import TestErrorButton from './TestErrorButton.tsx';
+import Detail from './Detail.tsx';
 import { useDispatch } from 'react-redux';
 import { pokemonApi } from '../store/pokemonApi';
 import SelectionFlyout from './SelectionFlyout';
@@ -15,9 +18,10 @@ import {
 } from '../store/pokemonApi';
 import { ITEMS_PER_PAGE, TOTAL_POKEMON_COUNT } from '../constants/constants.ts';
 
-export default function Layout() {
+export default function HomePage() {
   const detailPanelRef = useRef<HTMLDivElement>(null);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
   const searchQuery = searchParams.get('search') || '';
   const totalPages = Math.ceil(TOTAL_POKEMON_COUNT / ITEMS_PER_PAGE);
@@ -57,9 +61,9 @@ export default function Layout() {
         !(e.target as HTMLElement).closest('[data-detail-trigger]') &&
         !(e.target as HTMLElement).closest('[data-pagination]')
       ) {
-        const newParams = new URLSearchParams(searchParams);
+        const newParams = new URLSearchParams(searchParams.toString());
         newParams.delete('details');
-        setSearchParams(newParams);
+        router.replace(`?${newParams.toString()}`);
       }
     };
     if (detailId) {
@@ -67,18 +71,21 @@ export default function Layout() {
       return () =>
         document.removeEventListener('mousedown', handleClickOutside);
     }
-  }, [detailId, searchParams, setSearchParams]);
+  }, [detailId, searchParams, router]);
 
   const handleSearch = (query: string) => {
     const trimmedQuery = query.trim();
 
-    const newParams = new URLSearchParams();
+    const newParams = new URLSearchParams(searchParams.toString());
     if (trimmedQuery) {
       newParams.set('search', trimmedQuery);
+    } else {
+      newParams.delete('search');
     }
+
     newParams.delete('details');
     newParams.set('page', '1');
-    setSearchParams(newParams);
+    router.replace(`?${newParams.toString()}`);
   };
 
   const handlePageChange = (newPage: number) => {
@@ -90,7 +97,7 @@ export default function Layout() {
     if (detailId) {
       newParams.set('details', detailId);
     }
-    setSearchParams(newParams);
+    router.replace(`?${newParams.toString()}`);
   };
 
   const handleInvalidateAllData = () => {
@@ -105,8 +112,7 @@ export default function Layout() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="flex justify-end p-1"></div>
-      <div className="flex justify-end p-1 gap-2">
+      <div className="flex justify-end p-2 gap-2 bg-(--bg-primary) text-(--text-primary)">
         <button
           onClick={handleInvalidateAllData}
           className="rounded bg-blue-500 px-2 py-1 text-[10px] font-medium text-white hover:bg-blue-600"
@@ -153,7 +159,7 @@ export default function Layout() {
                 ref={detailPanelRef}
                 className="w-full md:w-1/3 border-l border-(--border-color)"
               >
-                <Outlet />
+                <Detail />
               </div>
             )}
           </div>

@@ -1,9 +1,8 @@
-import { render } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import { ThemeProvider } from '../context/ThemeContext';
-import { Provider } from 'react-redux';
+// import { render } from '@testing-library/react';
+// import { ThemeProvider } from '../context/ThemeContext';
+// import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
-import type { RootState } from '../store/store';
+// import type { RootState } from '../store/store';
 import selectionReducer from '../store/selectionSlice';
 import type { PokemonBase, PokemonDetails } from '../types/types';
 
@@ -112,18 +111,18 @@ export const createTestStore = (preloadedState?: TestPreloadedState) => {
   return configureStore(config);
 };
 
-export const renderWithRouter = (
-  component: React.ReactNode,
-  initialEntries: string[] = ['/'],
-  preloadedState?: Partial<RootState>
-) => {
-  const testStore = createTestStore(preloadedState);
+// export const renderWithRouter = (
+//   component: React.ReactNode,
+//   initialEntries: string[] = ['/'],
+//   preloadedState?: Partial<RootState>
+// ) => {
+//   const testStore = createTestStore(preloadedState);
 
-  return render(
-    <Provider store={testStore}>
-      <ThemeProvider>
-        <MemoryRouter initialEntries={initialEntries}>{component}</MemoryRouter>
-      </ThemeProvider>
-    </Provider>
-  );
-};
+//   return render(
+//     <Provider store={testStore}>
+//       <ThemeProvider>
+//         <MemoryRouter initialEntries={initialEntries}>{component}</MemoryRouter>
+//       </ThemeProvider>
+//     </Provider>
+//   );
+// };

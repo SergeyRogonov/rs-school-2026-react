@@ -2,19 +2,22 @@ import { useState, useCallback } from 'react';
 
 export function useLocalStorage(key: string) {
   const [value, setValue] = useState(() => {
-    const stored = localStorage.getItem(key);
-    return stored || '';
+    if (typeof window === 'undefined') {
+      return '';
+    }
+
+    return localStorage.getItem(key) || '';
   });
 
   const setStoredValue = useCallback(
     (newValue: string) => {
-      // Only update if value changed
-      if (newValue !== value) {
-        setValue(newValue);
+      setValue(newValue);
+
+      if (typeof window !== 'undefined') {
         localStorage.setItem(key, newValue);
       }
     },
-    [key, value]
+    [key]
   );
 
   return [value, setStoredValue] as const;

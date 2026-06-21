@@ -1,10 +1,15 @@
+'use client';
+
 import { useState, type ReactNode, useEffect } from 'react';
-import { ThemeContext, type Theme } from './theme.ts';
+import { ThemeContext, type Theme } from './theme';
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<Theme>(() => {
-    const savedTheme = localStorage.getItem('theme') as Theme | null;
-    return savedTheme || 'light';
+    if (typeof window === 'undefined') {
+      return 'light';
+    }
+
+    return (localStorage.getItem('theme') as Theme | null) ?? 'light';
   });
 
   useEffect(() => {
