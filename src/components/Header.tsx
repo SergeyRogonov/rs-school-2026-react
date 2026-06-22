@@ -1,8 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { Link, useRouter } from '../i18n/navigation';
 import { useTheme } from '../context/useTheme';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import LocaleSwitcher from './LocaleSwitcher';
