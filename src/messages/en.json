@@ -1,0 +1,86 @@
+{
+  "header": {
+    "home": "Home",
+    "about": "About"
+  },
+  "search": {
+    "button": "Search",
+    "placeholder": "Search by name"
+  },
+  "about": {
+    "title": "About the App",
+    "description": "This Pokémon Search App allows users to search for Pokémon by name or ID, view detailed information about each Pokémon, and browse through the complete Pokémon database with pagination.",
+    "technology": "The app uses the PokeAPI GraphQL endpoint to fetch Pokémon data and provides a responsive user interface built with React and Tailwind CSS.",
+    "authorSectionTitle": "Author Information",
+    "courseDescription": "This application was developed as part of the RS School React 2026 course.",
+    "courseLabel": "Course",
+    "authorLabel": "Author",
+    "authorName": "Sergey Rogonov"
+  },
+  "card": {
+    "weight": "Weight",
+    "height": "Height"
+  },
+  "details": {
+    "title": "Details",
+    "invalidateButton": "Invalidate Details",
+
+    "error": {
+      "title": "Error",
+      "pokemonNotFound": "Pokémon not found"
+    },
+
+    "pokemon": {
+      "weight": "Weight",
+      "height": "Height"
+    },
+
+    "stats": {
+      "title": "Base Stats",
+      "hp": "HP",
+      "attack": "Attack",
+      "defense": "Defense",
+      "specialAttack": "Sp. Attack",
+      "specialDefense": "Sp. Defense",
+      "speed": "Speed"
+    },
+    "pokemonTypes": {
+      "normal": "Normal",
+      "fire": "Fire",
+      "water": "Water",
+      "electric": "Electric",
+      "grass": "Grass",
+      "ice": "Ice",
+      "fighting": "Fighting",
+      "poison": "Poison",
+      "ground": "Ground",
+      "flying": "Flying",
+      "psychic": "Psychic",
+      "bug": "Bug",
+      "rock": "Rock",
+      "ghost": "Ghost",
+      "dark": "Dark",
+      "dragon": "Dragon",
+      "steel": "Steel",
+      "fairy": "Fairy"
+    }
+  },
+  "selectionFlyout": {
+    "selectedItems": "Selected items",
+    "download": "Download",
+    "unselectAll": "Unselect all"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page",
+    "pageOf": "of"
+  },
+  "testErrorButton": "Throw Error",
+  "invalidateAllButton": "Invalidate All",
+  "notFound": {
+    "title": "404 - Page Not Found",
+    "description": "The page you are looking for does not exist.",
+    "button": "Return to Home"
+  }
+}

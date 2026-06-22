@@ -1,9 +1,12 @@
 import { render } from '@testing-library/react';
-import { ThemeProvider } from '../context/ThemeContext';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
+import { NextIntlClientProvider } from 'next-intl';
+
+import { ThemeProvider } from '../context/ThemeContext';
 import selectionReducer from '../store/selectionSlice';
 import type { PokemonBase, PokemonDetails } from '../types/types';
+import enMessages from '../messages/en.json';
 
 // Mock data matching GraphQL response structure
 export const mockPokemonBaseResponse = {
@@ -110,7 +113,11 @@ export function renderWithProviders(
 
   return render(
     <Provider store={store}>
-      <ThemeProvider>{ui}</ThemeProvider>
+      <ThemeProvider>
+        <NextIntlClientProvider locale="en" messages={enMessages}>
+          {ui}
+        </NextIntlClientProvider>
+      </ThemeProvider>
     </Provider>
   );
 }

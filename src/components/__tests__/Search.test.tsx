@@ -1,6 +1,7 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import Search from '../Search';
 import { mockLocalStorage } from '../../test-utils/setup';
+import { renderWithProviders } from '../../test-utils/mocks';
 
 describe('Search', () => {
   const mockOnSearch = vi.fn();
@@ -10,14 +11,14 @@ describe('Search', () => {
   });
 
   it('renders search input and button', () => {
-    render(<Search onSearch={mockOnSearch} />);
+    renderWithProviders(<Search onSearch={mockOnSearch} />);
 
     expect(screen.getByPlaceholderText('Search by name')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Search' })).toBeInTheDocument();
   });
 
   it('calls onSearch when form is submitted', () => {
-    render(<Search onSearch={mockOnSearch} />);
+    renderWithProviders(<Search onSearch={mockOnSearch} />);
 
     const input = screen.getByPlaceholderText('Search by name');
     const button = screen.getByRole('button', { name: 'Search' });
@@ -29,7 +30,7 @@ describe('Search', () => {
   });
 
   it('handles empty search with only whitespace', () => {
-    render(<Search onSearch={mockOnSearch} />);
+    renderWithProviders(<Search onSearch={mockOnSearch} />);
 
     const input = screen.getByPlaceholderText('Search by name');
     fireEvent.change(input, { target: { value: '   ' } });
@@ -39,7 +40,7 @@ describe('Search', () => {
   });
 
   it('trims whitespace from search query', () => {
-    render(<Search onSearch={mockOnSearch} />);
+    renderWithProviders(<Search onSearch={mockOnSearch} />);
 
     const input = screen.getByPlaceholderText('Search by name');
 
@@ -50,7 +51,7 @@ describe('Search', () => {
   });
 
   it('saves search term to localStorage', () => {
-    render(<Search onSearch={mockOnSearch} />);
+    renderWithProviders(<Search onSearch={mockOnSearch} />);
 
     const input = screen.getByPlaceholderText('Search by name');
 
@@ -66,7 +67,7 @@ describe('Search', () => {
   it('renders with empty input when localStorage is empty', () => {
     mockLocalStorage.getItem.mockReturnValue(null);
 
-    render(<Search onSearch={mockOnSearch} />);
+    renderWithProviders(<Search onSearch={mockOnSearch} />);
 
     const input = screen.getByPlaceholderText(
       'Search by name'
@@ -77,7 +78,7 @@ describe('Search', () => {
   it('loads last search term from localStorage on mount', () => {
     mockLocalStorage.getItem.mockReturnValue('bulbasaur');
 
-    render(<Search onSearch={mockOnSearch} />);
+    renderWithProviders(<Search onSearch={mockOnSearch} />);
 
     const input = screen.getByDisplayValue('bulbasaur');
     expect(input).toBeInTheDocument();

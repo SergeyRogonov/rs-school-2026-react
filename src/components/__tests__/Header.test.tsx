@@ -5,9 +5,28 @@ import { mockLocalStorage } from '../../test-utils/setup';
 import { useRouter } from 'next/navigation';
 import type { Mock } from 'vitest';
 
+vi.mock('../../i18n/navigation', () => ({
+  Link: ({
+    children,
+    href,
+    ...props
+  }: React.PropsWithChildren<
+    React.AnchorHTMLAttributes<HTMLAnchorElement> & {
+      href?: string | { pathname?: string };
+    }
+  >) => (
+    <a href={typeof href === 'string' ? href : '/'} {...props}>
+      {children}
+    </a>
+  ),
+
+  usePathname: () => '/',
+}));
+
 vi.mock('next/navigation', () => ({
   useRouter: vi.fn(),
   usePathname: vi.fn(() => '/'),
+  useSearchParams: vi.fn(() => new URLSearchParams()),
 }));
 
 describe('Header', () => {

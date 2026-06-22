@@ -1,11 +1,14 @@
 'use client';
 
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useTheme } from '../context/useTheme';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import LocaleSwitcher from './LocaleSwitcher';
 
 export default function Header() {
+  const t = useTranslations();
   const router = useRouter();
   const { theme, toggleTheme } = useTheme();
   const [, setStoredValue] = useLocalStorage('lastSearchTerm');
@@ -36,14 +39,15 @@ export default function Header() {
               onClick={handleHomeClick}
               className="px-4 py-2 bg-(--bg-secondary) text-(--brand-header) rounded-lg hover:bg-(--bg-secondary-hover) font-medium"
             >
-              Home
+              {t('header.home')}
             </Link>
             <Link
               href="/about"
               className="px-4 py-2 bg-(--bg-secondary) text-(--brand-header) rounded-lg hover:bg-(--bg-secondary-hover) font-medium "
             >
-              About
+              {t('header.about')}
             </Link>
+            <LocaleSwitcher />
             <button
               onClick={toggleTheme}
               className="p-2 rounded text-(--text-secondary)"

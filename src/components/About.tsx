@@ -1,28 +1,23 @@
+import { useTranslations } from 'next-intl';
+
 export default function About() {
+  const t = useTranslations();
+
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="bg-(--bg-secondary) rounded-lg shadow-(--card-shadow) p-6 mb-6">
-        <h2 className="text-2xl font-semibold mb-4">About the App</h2>
-        <p className="mb-4">
-          This Pokémon Search App allows users to search for Pokémon by name or
-          ID, view detailed information about each Pokémon, and browse through
-          the complete Pokémon database with pagination.
-        </p>
-        <p className="mb-4">
-          The app uses the PokeAPI GraphQL endpoint to fetch Pokémon data and
-          provides a responsive user interface built with React and Tailwind
-          CSS.
-        </p>
+        <h2 className="text-2xl font-semibold mb-4">{t('about.title')}</h2>
+        <p className="mb-4">{t('about.description')}</p>
+        <p className="mb-4">{t('about.technology')}</p>
       </div>
 
       <div className="bg-(--bg-secondary) rounded-lg shadow-(--card-shadow) p-6">
-        <h2 className="text-2xl font-semibold mb-4">Author Information</h2>
+        <h2 className="text-2xl font-semibold mb-4">
+          {t('about.authorSectionTitle')}
+        </h2>
+        <p className="mb-4">{t('about.courseDescription')}</p>
         <p className="mb-4">
-          This application was developed as part of the RS School React 2026
-          course.
-        </p>
-        <p className="mb-4">
-          <strong>Course:</strong>{' '}
+          <strong>{t('about.courseLabel')}:</strong>{' '}
           <a
             href="https://rs.school/courses/reactjs"
             target="_blank"
@@ -33,7 +28,7 @@ export default function About() {
           </a>
         </p>
         <p className="mb-4">
-          <strong>Author:</strong> Sergey Rogonov
+          <strong>{t('about.authorLabel')}:</strong> {t('about.authorName')}
         </p>
         <p className="mb-4">
           <strong>GitHub:</strong>{' '}

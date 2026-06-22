@@ -1,5 +1,6 @@
 import type { PokemonBase } from '../types/types.ts';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { toggleSelected } from '../store/selectionSlice';
 import type { ChangeEvent } from 'react';
@@ -9,6 +10,7 @@ interface CardProps {
 }
 
 export default function Card({ pokemon }: CardProps) {
+  const t = useTranslations();
   const searchParams = useSearchParams();
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -53,8 +55,12 @@ export default function Card({ pokemon }: CardProps) {
             <p>#{pokemon.id}</p>
           </div>
           <div className="flex gap-2">
-            <p>Weight: {pokemon.weight}</p>
-            <p>Height: {pokemon.height}</p>
+            <p>
+              {t('card.weight')}: {pokemon.weight}
+            </p>
+            <p>
+              {t('card.height')}: {pokemon.height}
+            </p>
           </div>
           <div className="avatar flex justify-center items-center">
             <img

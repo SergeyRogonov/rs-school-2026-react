@@ -125,8 +125,8 @@ describe('Detail', () => {
     renderWithProviders(<Detail />);
 
     await waitFor(() => {
-      expect(screen.getByText('grass')).toBeInTheDocument();
-      expect(screen.getByText('poison')).toBeInTheDocument();
+      expect(screen.getByText(/grass/i)).toBeInTheDocument();
+      expect(screen.getByText(/poison/i)).toBeInTheDocument();
     });
   });
 

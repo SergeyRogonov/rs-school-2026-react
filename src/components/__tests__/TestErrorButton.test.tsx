@@ -1,9 +1,10 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import TestErrorButton from '../TestErrorButton';
+import { renderWithProviders } from '../../test-utils/mocks';
 
 describe('TestErrorButton', () => {
   it('renders throw error button', () => {
-    render(<TestErrorButton />);
+    renderWithProviders(<TestErrorButton />);
 
     expect(
       screen.getByRole('button', { name: 'Throw Error' })
@@ -12,7 +13,7 @@ describe('TestErrorButton', () => {
 
   it('throws error when button is clicked', () => {
     expect(() => {
-      const { rerender } = render(<TestErrorButton />);
+      const { rerender } = renderWithProviders(<TestErrorButton />);
 
       const button = screen.getByRole('button', { name: 'Throw Error' });
       fireEvent.click(button);

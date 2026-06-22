@@ -1,10 +1,12 @@
+import { useTranslations } from 'next-intl';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { unselectAll } from '../store/selectionSlice';
 import { pokemonApi } from '../store/pokemonApi';
 import type { PokemonDetails } from '../types/types';
-import { downloadCsv } from '../utils/donwloadCSVHelpers';
+import { downloadCsv } from '../utils/downloadCSVHelpers';
 
 export default function SelectionFlyout() {
+  const t = useTranslations();
   const dispatch = useAppDispatch();
   const selectedIds = useAppSelector((state) => state.selection.selectedIds);
   const selectedCount = selectedIds.length;
@@ -39,7 +41,7 @@ export default function SelectionFlyout() {
     <div className="flex gap-3 flex-row justify-between">
       <div className="flex-col">
         <span className="text-sm font-semibold text-black">
-          Selected items: {selectedCount}
+          {t('selectionFlyout.selectedItems')}: {selectedCount}
         </span>
       </div>
 
@@ -49,7 +51,7 @@ export default function SelectionFlyout() {
           onClick={handleUnselectAll}
           className="rounded bg-(--bg-secondary) px-3 py-1 text-sm font-medium text-(--text-primary) transition hover:bg-(--bg-secondary-hover)"
         >
-          Unselect all
+          {t('selectionFlyout.unselectAll')}
         </button>
 
         <button
@@ -57,7 +59,7 @@ export default function SelectionFlyout() {
           onClick={handleDownload}
           className="rounded bg-(--brand-header) px-3 py-1 text-sm font-medium text-(--bg-secondary) transition hover:bg-(--brand-header-hover)"
         >
-          Download
+          {t('selectionFlyout.download')}
         </button>
       </div>
     </div>

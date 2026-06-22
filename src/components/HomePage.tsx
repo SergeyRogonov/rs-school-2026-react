@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { skipToken } from '@reduxjs/toolkit/query';
 import Search from './Search';
 import CardList from './CardList';
@@ -19,6 +20,7 @@ import {
 import { ITEMS_PER_PAGE, TOTAL_POKEMON_COUNT } from '../constants/constants.ts';
 
 export default function HomePage() {
+  const t = useTranslations();
   const detailPanelRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -51,6 +53,16 @@ export default function HomePage() {
   const data = isSearching ? (pokemon ? [pokemon] : []) : pokemons;
 
   const isNotFound = isSearching && !isLoading && !error && !pokemon;
+
+  useEffect(() => {
+    if (currentPage < 1 || currentPage > totalPages) {
+      const newParams = new URLSearchParams(searchParams.toString());
+
+      newParams.set('page', currentPage < 1 ? '1' : totalPages.toString());
+
+      router.replace(`?${newParams.toString()}`);
+    }
+  }, [currentPage, totalPages, searchParams, router]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -117,7 +129,7 @@ export default function HomePage() {
           onClick={handleInvalidateAllData}
           className="rounded bg-blue-500 px-2 py-1 text-[10px] font-medium text-white hover:bg-blue-600"
         >
-          Invalidate All
+          {t('invalidateAllButton')}
         </button>
         <TestErrorButton />
       </div>
