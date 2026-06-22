@@ -1,9 +1,18 @@
 import { screen, waitFor, fireEvent } from '@testing-library/react';
 import { type Mock } from 'vitest';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Detail from '../Detail';
-import { mockPokemonDetails, renderWithRouter } from '../../test-utils/mocks';
+import {
+  mockPokemonDetails,
+  renderWithProviders,
+} from '../../test-utils/mocks';
 
-// Mock the entire pokemonApi module using importOriginal as suggested
+vi.mock('next/navigation', () => ({
+  useSearchParams: vi.fn(),
+  useRouter: vi.fn(),
+}));
+
+// Mock the entire pokemonApi module
 vi.mock('../../store/pokemonApi', async (importOriginal) => {
   const actual =
     await importOriginal<typeof import('../../store/pokemonApi')>();
@@ -19,8 +28,16 @@ vi.mock('../../store/pokemonApi', async (importOriginal) => {
 import { useGetPokemonDetailsQuery } from '../../store/pokemonApi';
 
 describe('Detail', () => {
+  const mockReplace = vi.fn();
+
   beforeEach(() => {
     vi.clearAllMocks();
+
+    (useRouter as Mock).mockReturnValue({
+      replace: mockReplace,
+    });
+
+    (useSearchParams as Mock).mockReturnValue(new URLSearchParams('details=1'));
   });
 
   it('renders nothing when no detailId in URL', () => {
@@ -30,7 +47,9 @@ describe('Detail', () => {
       error: null,
     });
 
-    const { container } = renderWithRouter(<Detail />, ['/']);
+    (useSearchParams as Mock).mockReturnValue(new URLSearchParams());
+
+    const { container } = renderWithProviders(<Detail />);
     expect(container.firstChild).toBeNull();
   });
 
@@ -41,7 +60,7 @@ describe('Detail', () => {
       error: null,
     });
 
-    renderWithRouter(<Detail />, ['/?details=1']);
+    renderWithProviders(<Detail />);
 
     expect(screen.getByLabelText('Loading...')).toBeInTheDocument();
   });
@@ -53,7 +72,7 @@ describe('Detail', () => {
       error: { message: 'Failed to fetch data' },
     });
 
-    renderWithRouter(<Detail />, ['/?details=1']);
+    renderWithProviders(<Detail />);
 
     await waitFor(() => {
       expect(screen.getByText('Error')).toBeInTheDocument();
@@ -68,7 +87,11 @@ describe('Detail', () => {
       error: null,
     });
 
-    renderWithRouter(<Detail />, ['/?details=999']);
+    (useSearchParams as Mock).mockReturnValue(
+      new URLSearchParams('details=999')
+    );
+
+    renderWithProviders(<Detail />);
 
     await waitFor(() => {
       expect(screen.getByText('Error')).toBeInTheDocument();
@@ -83,7 +106,7 @@ describe('Detail', () => {
       error: null,
     });
 
-    renderWithRouter(<Detail />, ['/?details=1']);
+    renderWithProviders(<Detail />);
 
     await waitFor(() => {
       const image = screen.getByRole('img', { name: 'bulbasaur' });
@@ -99,11 +122,11 @@ describe('Detail', () => {
       error: null,
     });
 
-    renderWithRouter(<Detail />, ['/?details=1']);
+    renderWithProviders(<Detail />);
 
     await waitFor(() => {
-      expect(screen.getByText('grass')).toBeInTheDocument();
-      expect(screen.getByText('poison')).toBeInTheDocument();
+      expect(screen.getByText(/grass/i)).toBeInTheDocument();
+      expect(screen.getByText(/poison/i)).toBeInTheDocument();
     });
   });
 
@@ -114,7 +137,7 @@ describe('Detail', () => {
       error: null,
     });
 
-    renderWithRouter(<Detail />, ['/?details=1']);
+    renderWithProviders(<Detail />);
 
     await waitFor(() => {
       expect(screen.getByText('Base Stats')).toBeInTheDocument();
@@ -146,7 +169,7 @@ describe('Detail', () => {
       error: null,
     });
 
-    renderWithRouter(<Detail />, ['/?details=1']);
+    renderWithProviders(<Detail />);
 
     await waitFor(() => {
       const closeButton = screen.getByRole('button', { name: 'X' });
@@ -161,14 +184,18 @@ describe('Detail', () => {
       error: null,
     });
 
-    const { container } = renderWithRouter(<Detail />, ['/?details=1']);
+    const mockReplace = vi.fn();
+
+    (useRouter as Mock).mockReturnValue({
+      replace: mockReplace,
+    });
+
+    renderWithProviders(<Detail />);
 
     const closeButton = screen.getByRole('button', { name: 'X' });
 
     fireEvent.click(closeButton);
 
-    await waitFor(() => {
-      expect(container.firstChild).toBeNull();
-    });
+    expect(mockReplace).toHaveBeenCalled();
   });
 });

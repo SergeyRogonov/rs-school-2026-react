@@ -1,0 +1,91 @@
+{
+  "header": {
+    "home": "Главная",
+    "about": "О приложении"
+  },
+  "search": {
+    "button": "Найти",
+    "placeholder": "Поиск по имени"
+  },
+  "homePage": {
+    "errorLoading": "Ошибка загрузки покемона.",
+    "pokemonNotFound": "Покемон не найден для",
+    "invalidateAllButton": "Сбросить весь кэш"
+  },
+  "about": {
+    "title": "О приложении",
+    "description": "Pokémon Search App позволяет пользователям искать покемонов по имени, просматривать детальную информацию по каждому покемону и изучать полную базу данных покемонов с постраничной навигацией.",
+    "technology": "Для получения данных о покемонах приложение использует GraphQL API сервиса PokeAPI и предоставляет современный адаптивный интерфейс, разработанный с использованием React и Tailwind CSS.",
+    "authorSectionTitle": "Информация об авторе",
+    "courseDescription": "Это приложение было разработано как часть курса RS School React 2026.",
+    "courseLabel": "Курс",
+    "authorLabel": "Автор",
+    "authorName": "Сергей Рогонов"
+  },
+  "card": {
+    "weight": "Вес",
+    "height": "Рост"
+  },
+  "details": {
+    "title": "Информация",
+    "invalidateButton": "Сбросить кэш",
+
+    "error": {
+      "title": "Ошибка",
+      "pokemonNotFound": "Покемон не найден"
+    },
+
+    "pokemon": {
+      "weight": "Вес",
+      "height": "Рост"
+    },
+
+    "stats": {
+      "title": "Базовые характеристики",
+      "hp": "Здоровье",
+      "attack": "Атака",
+      "defense": "Защита",
+      "specialAttack": "Спец. атака",
+      "specialDefense": "Спец. защита",
+      "speed": "Скорость"
+    },
+    "pokemonTypes": {
+      "normal": "Обычный",
+      "fire": "Огненный",
+      "water": "Водный",
+      "electric": "Электрический",
+      "grass": "Травяной",
+      "ice": "Ледяной",
+      "fighting": "Боевой",
+      "poison": "Ядовитый",
+      "ground": "Земляной",
+      "flying": "Летающий",
+      "psychic": "Психический",
+      "bug": "Насекомое",
+      "rock": "Каменный",
+      "ghost": "Призрачный",
+      "dark": "Тёмный",
+      "dragon": "Драконий",
+      "steel": "Стальной",
+      "fairy": "Волшебный"
+    }
+  },
+  "selectionFlyout": {
+    "selectedItems": "Выбрано",
+    "download": "Скачать",
+    "unselectAll": "Снять выделение"
+  },
+  "pagination": {
+    "previous": "Предыдущая",
+    "next": "Следующая",
+    "page": "Страница",
+    "pageOf": "из"
+  },
+  "testErrorButton": "Вызвать ошибку",
+  "results": "Результаты",
+  "notFound": {
+    "title": "404 - Страница не найдена",
+    "description": "Страница, которую вы ищете, не существует.",
+    "button": "Вернуться на главную"
+  }
+}

@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import Card from './Card';
 import type { PokemonBase } from '../types/types.ts';
 
@@ -6,10 +7,12 @@ interface CardListProps {
 }
 
 export default function CardList({ pokemon }: CardListProps) {
+  const t = useTranslations();
+
   return (
     <div className="flex flex-wrap max-w-7xl gap-5 w-4/5">
       <div className="flex w-full justify-center">
-        <h2 className="text-3xl font-semibold">Results</h2>
+        <h2 className="text-3xl font-semibold">{t('results')}</h2>
       </div>
       <div className="flex flex-wrap w-full gap-5 justify-center">
         {pokemon.map((p) => (

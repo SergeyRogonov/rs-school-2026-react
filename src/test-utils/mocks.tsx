@@ -1,18 +1,12 @@
 import { render } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import { ThemeProvider } from '../context/ThemeContext';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
-import type { RootState } from '../store/store';
+import { NextIntlClientProvider } from 'next-intl';
+
+import { ThemeProvider } from '../context/ThemeContext';
 import selectionReducer from '../store/selectionSlice';
 import type { PokemonBase, PokemonDetails } from '../types/types';
-
-export const mockLocalStorage = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-};
-Object.defineProperty(window, 'localStorage', { value: mockLocalStorage });
+import enMessages from '../messages/en.json';
 
 // Mock data matching GraphQL response structure
 export const mockPokemonBaseResponse = {
@@ -42,7 +36,6 @@ export const mockPokemonDetailsResponse = {
   types: [{ type: { name: 'grass' } }, { type: { name: 'poison' } }],
 };
 
-// Transformed data matching component expectations
 export const mockPokemonBase: PokemonBase = {
   id: 1,
   name: 'bulbasaur',
@@ -112,18 +105,19 @@ export const createTestStore = (preloadedState?: TestPreloadedState) => {
   return configureStore(config);
 };
 
-export const renderWithRouter = (
-  component: React.ReactNode,
-  initialEntries: string[] = ['/'],
-  preloadedState?: Partial<RootState>
-) => {
-  const testStore = createTestStore(preloadedState);
+export function renderWithProviders(
+  ui: React.ReactElement,
+  preloadedState?: TestPreloadedState
+) {
+  const store = createTestStore(preloadedState);
 
   return render(
-    <Provider store={testStore}>
+    <Provider store={store}>
       <ThemeProvider>
-        <MemoryRouter initialEntries={initialEntries}>{component}</MemoryRouter>
+        <NextIntlClientProvider locale="en" messages={enMessages}>
+          {ui}
+        </NextIntlClientProvider>
       </ThemeProvider>
     </Provider>
   );
-};
+}

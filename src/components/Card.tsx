@@ -1,15 +1,19 @@
-import type { PokemonBase } from '../types/types.ts';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { toggleSelected } from '../store/selectionSlice';
 import type { ChangeEvent } from 'react';
+import type { PokemonBase } from '../types/types.ts';
 
 interface CardProps {
   pokemon: PokemonBase;
 }
 
 export default function Card({ pokemon }: CardProps) {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const t = useTranslations('card');
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const dispatch = useAppDispatch();
 
   const isSelected = useAppSelector((state) =>
@@ -19,15 +23,14 @@ export default function Card({ pokemon }: CardProps) {
   const handleClick = () => {
     const newParams = new URLSearchParams(searchParams);
     newParams.set('details', pokemon.id.toString());
-    setSearchParams(newParams);
+    router.replace(`?${newParams.toString()}`);
   };
 
   const onCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
-    e.stopPropagation(); // Prevent open-details when clicking checkbox
+    e.stopPropagation();
     dispatch(toggleSelected(pokemon.id));
   };
 
-  // Prevent checkbox clicks from bubbling when using onClick on input
   const onCheckboxClick = (e: React.MouseEvent<HTMLInputElement>) => {
     e.stopPropagation();
   };
@@ -53,15 +56,24 @@ export default function Card({ pokemon }: CardProps) {
             <p>#{pokemon.id}</p>
           </div>
           <div className="flex gap-2">
-            <p>Weight: {pokemon.weight}</p>
-            <p>Height: {pokemon.height}</p>
+            <p>
+              {t('weight')}: {pokemon.weight}
+            </p>
+            <p>
+              {t('height')}: {pokemon.height}
+            </p>
           </div>
           <div className="avatar flex justify-center items-center">
-            <img
-              className="block w-36"
-              src={pokemon.sprites.front_default || ''}
-              alt={pokemon.name}
-            />
+            {pokemon.sprites.front_default && (
+              <Image
+                src={pokemon.sprites.front_default || ''}
+                alt={pokemon.name}
+                width={144}
+                height={144}
+                className="block"
+                priority
+              />
+            )}
           </div>
         </div>
       </div>

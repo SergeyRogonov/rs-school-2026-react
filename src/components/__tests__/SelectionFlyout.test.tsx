@@ -1,6 +1,6 @@
 import { screen, fireEvent, waitFor } from '@testing-library/react';
 import SelectionFlyout from '../SelectionFlyout';
-import { renderWithRouter, mockPokemonDetails } from '../../test-utils/mocks';
+import { renderWithProviders } from '../../test-utils/mocks';
 import { type Mock } from 'vitest';
 
 // Mock the entire pokemonApi module with the mock function defined inside
@@ -20,6 +20,11 @@ import { pokemonApi } from '../../store/pokemonApi';
 describe('SelectionFlyout', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      text: async () => 'id,name\n1,Pikachu',
+    } as Response);
   });
 
   it('does not render when there are no selected items', () => {
@@ -29,7 +34,7 @@ describe('SelectionFlyout', () => {
       { isLoading: false },
     ]);
 
-    renderWithRouter(<SelectionFlyout />);
+    renderWithProviders(<SelectionFlyout />);
 
     expect(screen.queryByText(/Selected items/i)).not.toBeInTheDocument();
     expect(
@@ -47,7 +52,7 @@ describe('SelectionFlyout', () => {
       { isLoading: false },
     ]);
 
-    renderWithRouter(<SelectionFlyout />, ['/'], {
+    renderWithProviders(<SelectionFlyout />, {
       selection: { selectedIds: [1, 2] },
     });
 
@@ -67,7 +72,7 @@ describe('SelectionFlyout', () => {
       { isLoading: false },
     ]);
 
-    renderWithRouter(<SelectionFlyout />, ['/'], {
+    renderWithProviders(<SelectionFlyout />, {
       selection: { selectedIds: [1, 2] },
     });
 
@@ -79,43 +84,40 @@ describe('SelectionFlyout', () => {
   });
 
   it('downloads CSV for selected pokemon', async () => {
+    const fetchSpy = vi.fn().mockResolvedValue({
+      ok: true,
+      text: async () => 'id,name\n1,Pikachu',
+    });
+
+    global.fetch = fetchSpy;
+
     const createObjectURLSpy = vi
       .spyOn(URL, 'createObjectURL')
       .mockReturnValue('blob:url');
+
     const revokeObjectURLSpy = vi
       .spyOn(URL, 'revokeObjectURL')
       .mockImplementation(() => {});
+
     const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click');
 
-    // Create a mock promise with unwrap() method
-    const mockPromise = {
-      unwrap: vi.fn().mockResolvedValue([mockPokemonDetails]),
-    };
-
-    const mockFetchPokemonDetails = vi.fn().mockReturnValue(mockPromise);
-
-    // Mock the hook to return our mock function and state
-    (pokemonApi.useLazyGetPokemonDetailsQuery as Mock).mockReturnValue([
-      mockFetchPokemonDetails,
-      { isLoading: false },
-    ]);
-
-    renderWithRouter(<SelectionFlyout />, ['/'], {
+    renderWithProviders(<SelectionFlyout />, {
       selection: { selectedIds: [1] },
     });
 
     fireEvent.click(screen.getByRole('button', { name: /download/i }));
 
     await waitFor(() => {
-      expect(mockFetchPokemonDetails).toHaveBeenCalledWith([1]);
-      expect(mockPromise.unwrap).toHaveBeenCalled();
+      expect(fetchSpy).toHaveBeenCalledWith(
+        '/api/export-csv',
+        expect.objectContaining({
+          method: 'POST',
+        })
+      );
+
       expect(createObjectURLSpy).toHaveBeenCalled();
       expect(clickSpy).toHaveBeenCalled();
-      expect(revokeObjectURLSpy).toHaveBeenCalledWith('blob:url');
+      expect(revokeObjectURLSpy).toHaveBeenCalled();
     });
-
-    createObjectURLSpy.mockRestore();
-    revokeObjectURLSpy.mockRestore();
-    clickSpy.mockRestore();
   });
 });

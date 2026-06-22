@@ -1,16 +1,46 @@
 import { screen } from '@testing-library/react';
 import NotFound from '../NotFound';
-import { renderWithRouter } from '../../test-utils/mocks';
+import { renderWithProviders } from '../../test-utils/mocks';
+
+vi.mock('../../i18n/navigation', () => ({
+  Link: ({
+    children,
+    href,
+    ...props
+  }: React.PropsWithChildren<
+    React.AnchorHTMLAttributes<HTMLAnchorElement> & {
+      href?: string | { pathname?: string };
+    }
+  >) => (
+    <a href={typeof href === 'string' ? href : '/'} {...props}>
+      {children}
+    </a>
+  ),
+
+  usePathname: () => '/',
+}));
 
 describe('NotFound', () => {
   it('renders 404 page title', () => {
-    renderWithRouter(<NotFound />);
+    renderWithProviders(
+      <NotFound
+        title="404 - Page Not Found"
+        description="The page you are looking for does not exist."
+        buttonText="Return to Home"
+      />
+    );
 
     expect(screen.getByText('404 - Page Not Found')).toBeInTheDocument();
   });
 
   it('renders page not found message', () => {
-    renderWithRouter(<NotFound />);
+    renderWithProviders(
+      <NotFound
+        title="404 - Page Not Found"
+        description="The page you are looking for does not exist."
+        buttonText="Return to Home"
+      />
+    );
 
     expect(
       screen.getByText(/The page you are looking for does not exist/)
@@ -18,7 +48,13 @@ describe('NotFound', () => {
   });
 
   it('renders return to home link', () => {
-    renderWithRouter(<NotFound />);
+    renderWithProviders(
+      <NotFound
+        title="404 - Page Not Found"
+        description="The page you are looking for does not exist."
+        buttonText="Return to Home"
+      />
+    );
 
     const homeLink = screen.getByRole('link', { name: 'Return to Home' });
     expect(homeLink).toBeInTheDocument();

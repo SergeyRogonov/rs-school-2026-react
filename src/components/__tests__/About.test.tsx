@@ -1,16 +1,16 @@
 import { screen } from '@testing-library/react';
 import About from '../About';
-import { renderWithRouter } from '../../test-utils/mocks';
+import { renderWithProviders } from '../../test-utils/mocks';
 
 describe('About', () => {
   it('renders about page title', () => {
-    renderWithRouter(<About />);
+    renderWithProviders(<About />);
 
     expect(screen.getByText('About the App')).toBeInTheDocument();
   });
 
   it('renders app description', () => {
-    renderWithRouter(<About />);
+    renderWithProviders(<About />);
 
     expect(screen.getByText('About the App')).toBeInTheDocument();
     expect(
