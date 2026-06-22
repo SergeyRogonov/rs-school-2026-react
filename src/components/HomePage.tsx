@@ -20,7 +20,7 @@ import {
 import { ITEMS_PER_PAGE, TOTAL_POKEMON_COUNT } from '../constants/constants.ts';
 
 export default function HomePage() {
-  const t = useTranslations();
+  const t = useTranslations('homePage');
   const detailPanelRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -149,12 +149,12 @@ export default function HomePage() {
                   {isLoading && <Spinner />}
                   {!isLoading && Boolean(error) && (
                     <div className="text-red-500 font-bold">
-                      Error loading Pokémon.
+                      {t('errorLoading')}
                     </div>
                   )}
                   {!isLoading && !error && isNotFound && (
                     <div className="text-gray-500 font-semibold">
-                      No Pokémon found for &#34;{searchQuery}&#34;
+                      {t('pokemonNotFound')} &#34;{searchQuery}&#34;
                     </div>
                   )}
                   {!isLoading && !error && data?.length > 0 && (

@@ -7,7 +7,7 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import LocaleSwitcher from './LocaleSwitcher';
 
 export default function Header() {
-  const t = useTranslations();
+  const t = useTranslations('header');
   const router = useRouter();
   const { theme, toggleTheme } = useTheme();
   const [, setStoredValue] = useLocalStorage('lastSearchTerm');
@@ -38,13 +38,13 @@ export default function Header() {
               onClick={handleHomeClick}
               className="px-4 py-2 bg-(--bg-secondary) text-(--brand-header) rounded-lg hover:bg-(--bg-secondary-hover) font-medium"
             >
-              {t('header.home')}
+              {t('home')}
             </Link>
             <Link
               href="/about"
               className="px-4 py-2 bg-(--bg-secondary) text-(--brand-header) rounded-lg hover:bg-(--bg-secondary-hover) font-medium "
             >
-              {t('header.about')}
+              {t('about')}
             </Link>
             <LocaleSwitcher />
             <button

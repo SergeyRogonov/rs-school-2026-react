@@ -6,7 +6,7 @@ import type { PokemonDetails } from '../types/types';
 import { downloadCsv } from '../utils/downloadCSVHelpers';
 
 export default function SelectionFlyout() {
-  const t = useTranslations();
+  const t = useTranslations('selectionFlyout');
   const dispatch = useAppDispatch();
   const selectedIds = useAppSelector((state) => state.selection.selectedIds);
   const selectedCount = selectedIds.length;
@@ -41,7 +41,7 @@ export default function SelectionFlyout() {
     <div className="flex gap-3 flex-row justify-between">
       <div className="flex-col">
         <span className="text-sm font-semibold text-black">
-          {t('selectionFlyout.selectedItems')}: {selectedCount}
+          {t('selectedItems')}: {selectedCount}
         </span>
       </div>
 
@@ -51,7 +51,7 @@ export default function SelectionFlyout() {
           onClick={handleUnselectAll}
           className="rounded bg-(--bg-secondary) px-3 py-1 text-sm font-medium text-(--text-primary) transition hover:bg-(--bg-secondary-hover)"
         >
-          {t('selectionFlyout.unselectAll')}
+          {t('unselectAll')}
         </button>
 
         <button
@@ -59,7 +59,7 @@ export default function SelectionFlyout() {
           onClick={handleDownload}
           className="rounded bg-(--brand-header) px-3 py-1 text-sm font-medium text-(--bg-secondary) transition hover:bg-(--brand-header-hover)"
         >
-          {t('selectionFlyout.download')}
+          {t('download')}
         </button>
       </div>
     </div>

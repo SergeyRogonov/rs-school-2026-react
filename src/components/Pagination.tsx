@@ -12,7 +12,7 @@ export default function Pagination({
   totalPages,
   onPageChange,
 }: PaginationProps) {
-  const t = useTranslations();
+  const t = useTranslations('pagination');
 
   if (totalPages <= 1) return null;
   return (
@@ -22,18 +22,17 @@ export default function Pagination({
         disabled={currentPage === 1}
         className="px-3 py-1 font-medium text-sm bg-(--bg-secondary) text-(--brand-header) rounded hover:bg-(--bg-secondary-hover) disabled:opacity-50 disabled:hover:bg-(--bg-secondary) disabled:hover:text-(--brand-header)"
       >
-        {t('pagination.previous')}
+        {t('previous')}
       </button>
       <span>
-        {t('pagination.page')} {currentPage} {t('pagination.pageOf')}{' '}
-        {totalPages}
+        {t('page')} {currentPage} {t('pageOf')} {totalPages}
       </span>
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
         className="px-3 py-1 font-medium text-sm bg-(--bg-secondary) text-(--brand-header) rounded hover:bg-(--bg-secondary-hover) disabled:opacity-50 disabled:hover:bg-(--bg-secondary) disabled:hover:text-(--brand-header)"
       >
-        {t('pagination.next')}
+        {t('next')}
       </button>
     </div>
   );

@@ -11,7 +11,7 @@ interface CardProps {
 }
 
 export default function Card({ pokemon }: CardProps) {
-  const t = useTranslations();
+  const t = useTranslations('card');
   const searchParams = useSearchParams();
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -57,10 +57,10 @@ export default function Card({ pokemon }: CardProps) {
           </div>
           <div className="flex gap-2">
             <p>
-              {t('card.weight')}: {pokemon.weight}
+              {t('weight')}: {pokemon.weight}
             </p>
             <p>
-              {t('card.height')}: {pokemon.height}
+              {t('height')}: {pokemon.height}
             </p>
           </div>
           <div className="avatar flex justify-center items-center">

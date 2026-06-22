@@ -7,6 +7,11 @@
     "button": "Search",
     "placeholder": "Search by name"
   },
+  "homePage": {
+    "errorLoading": "Error loading Pokémon.",
+    "pokemonNotFound": "No Pokémon found for",
+    "invalidateAllButton": "Invalidate All"
+  },
   "about": {
     "title": "About the App",
     "description": "This Pokémon Search App allows users to search for Pokémon by name or ID, view detailed information about each Pokémon, and browse through the complete Pokémon database with pagination.",
@@ -77,7 +82,7 @@
     "pageOf": "of"
   },
   "testErrorButton": "Throw Error",
-  "invalidateAllButton": "Invalidate All",
+  "results": "Results",
   "notFound": {
     "title": "404 - Page Not Found",
     "description": "The page you are looking for does not exist.",

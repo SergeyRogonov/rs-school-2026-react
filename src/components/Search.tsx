@@ -9,7 +9,7 @@ interface SearchProps {
 }
 
 export default function Search({ onSearch }: SearchProps) {
-  const t = useTranslations();
+  const t = useTranslations('search');
   const [lastSearchTerm, setLastSearchTerm] = useLocalStorage('lastSearchTerm');
   const [query, setQuery] = useState(lastSearchTerm || '');
 
@@ -30,7 +30,7 @@ export default function Search({ onSearch }: SearchProps) {
       >
         <input
           className="flex-1 px-3 py-2 sm:px-4 sm:py-2 text-sm sm:text-base border rounded bg-(--bg-secondary) text-(--text-primary) max-w-xl"
-          placeholder={t('search.placeholder')}
+          placeholder={t('placeholder')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         ></input>
@@ -38,7 +38,7 @@ export default function Search({ onSearch }: SearchProps) {
           className="px-4 py-2 sm:px-6 sm:py-2 font-semibold text-sm sm:text-base bg-(--brand-header) text-(--text-secondary) rounded hover:bg-(--brand-header-hover)"
           type="submit"
         >
-          {t('search.button')}
+          {t('button')}
         </button>
       </form>
     </div>
