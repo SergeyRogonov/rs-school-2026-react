@@ -1,3 +1,4 @@
+import React from 'react';
 import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/react';
 import { afterEach, beforeEach, vi } from 'vitest';
@@ -38,3 +39,8 @@ export const mockLocalStorage = {
 Object.defineProperty(window, 'localStorage', {
   value: mockLocalStorage,
 });
+
+vi.mock('next/image', () => ({
+  default: (props: React.ImgHTMLAttributes<HTMLImageElement>) =>
+    React.createElement('img', props),
+}));

@@ -3,6 +3,7 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useDispatch } from 'react-redux';
+import Image from 'next/image';
 import Spinner from './Spinner';
 import { useGetPokemonDetailsQuery } from '../store/pokemonApi';
 import { typeColors } from '../utils/typeColors.ts';
@@ -84,10 +85,12 @@ export default function Detail() {
 
           {/* Sprite */}
           <div className="text-center">
-            <img
-              className="mx-auto w-48 h-48"
+            <Image
               src={pokemon.sprites.front_default || ''}
               alt={pokemon.name}
+              width={192}
+              height={192}
+              className="mx-auto h-48 w-48"
             />
           </div>
 

@@ -1,9 +1,10 @@
-import type { PokemonBase } from '../types/types.ts';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { toggleSelected } from '../store/selectionSlice';
 import type { ChangeEvent } from 'react';
+import type { PokemonBase } from '../types/types.ts';
 
 interface CardProps {
   pokemon: PokemonBase;
@@ -63,11 +64,16 @@ export default function Card({ pokemon }: CardProps) {
             </p>
           </div>
           <div className="avatar flex justify-center items-center">
-            <img
-              className="block w-36"
-              src={pokemon.sprites.front_default || ''}
-              alt={pokemon.name}
-            />
+            {pokemon.sprites.front_default && (
+              <Image
+                src={pokemon.sprites.front_default || ''}
+                alt={pokemon.name}
+                width={144}
+                height={144}
+                className="block"
+                priority
+              />
+            )}
           </div>
         </div>
       </div>
