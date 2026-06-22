@@ -2,8 +2,8 @@ import { screen, fireEvent, waitFor } from '@testing-library/react';
 import Header from '../Header';
 import { renderWithProviders } from '../../test-utils/mocks';
 import { mockLocalStorage } from '../../test-utils/setup';
-import { useRouter } from 'next/navigation';
-import type { Mock } from 'vitest';
+
+const mockReplace = vi.fn();
 
 vi.mock('../../i18n/navigation', () => ({
   Link: ({
@@ -21,25 +21,17 @@ vi.mock('../../i18n/navigation', () => ({
   ),
 
   usePathname: () => '/',
-}));
 
-vi.mock('next/navigation', () => ({
-  useRouter: vi.fn(),
-  usePathname: vi.fn(() => '/'),
-  useSearchParams: vi.fn(() => new URLSearchParams()),
+  useRouter: () => ({
+    replace: mockReplace,
+    push: vi.fn(),
+    prefetch: vi.fn(),
+  }),
 }));
 
 describe('Header', () => {
-  const mockReplace = vi.fn();
-
   beforeEach(() => {
     vi.clearAllMocks();
-
-    (useRouter as Mock).mockReturnValue({
-      replace: mockReplace,
-      push: vi.fn(),
-      prefetch: vi.fn(),
-    });
 
     mockLocalStorage.getItem.mockImplementation((key) => {
       if (key === 'theme') return 'light';

@@ -68,7 +68,7 @@ const GET_POKEMON_BY_NAME = `
   }
 `;
 
-const GET_POKEMON_DETAILS = `
+export const GET_POKEMON_DETAILS = `
   query GetPokemonDetails($ids: [Int!]!) {
     pokemon: pokemon_v2_pokemon(where: {id: {_in: $ids}}) {
       id

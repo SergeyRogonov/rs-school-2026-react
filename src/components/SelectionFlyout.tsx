@@ -1,8 +1,6 @@
 import { useTranslations } from 'next-intl';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { unselectAll } from '../store/selectionSlice';
-import { pokemonApi } from '../store/pokemonApi';
-import type { PokemonDetails } from '../types/types';
 import { downloadCsv } from '../utils/downloadCSVHelpers';
 
 export default function SelectionFlyout() {
@@ -11,8 +9,6 @@ export default function SelectionFlyout() {
   const selectedIds = useAppSelector((state) => state.selection.selectedIds);
   const selectedCount = selectedIds.length;
 
-  const [fetchPokemonDetails] = pokemonApi.useLazyGetPokemonDetailsQuery();
-
   const handleUnselectAll = () => {
     dispatch(unselectAll());
   };
@@ -20,17 +16,23 @@ export default function SelectionFlyout() {
   const handleDownload = async () => {
     if (!selectedIds.length) return;
 
-    const pokemonData: PokemonDetails[] =
-      await fetchPokemonDetails(selectedIds).unwrap();
+    const response = await fetch('/api/export-csv', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ids: selectedIds,
+      }),
+    });
 
-    if (!pokemonData) return;
+    if (!response.ok) {
+      throw new Error('Failed to generate CSV');
+    }
 
-    const selectedPokemon = pokemonData.filter(
-      (pokemon: PokemonDetails | null): pokemon is PokemonDetails =>
-        pokemon !== null
-    );
+    const csv = await response.text();
 
-    downloadCsv(selectedPokemon, `${selectedCount}-selected-pokemon.csv`);
+    downloadCsv(csv, `${selectedIds.length}-selected-pokemon.csv`);
   };
 
   if (selectedCount === 0) {
