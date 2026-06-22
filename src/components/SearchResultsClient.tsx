@@ -1,37 +1,60 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { skipToken } from '@reduxjs/toolkit/query';
+import { useDispatch } from 'react-redux';
+
 import Search from './Search';
 import CardList from './CardList';
 import Spinner from './Spinner';
-import Pagination from './Pagination.tsx';
-import TestErrorButton from './TestErrorButton.tsx';
-import Detail from './Detail.tsx';
-import { useDispatch } from 'react-redux';
-import { pokemonApi } from '../store/pokemonApi';
+import Pagination from './Pagination';
+import Detail from './Detail';
 import SelectionFlyout from './SelectionFlyout';
+import TestErrorButton from './TestErrorButton';
+
 import {
   useGetPokemonListQuery,
   useSearchPokemonQuery,
+  pokemonApi,
 } from '../store/pokemonApi';
-import { ITEMS_PER_PAGE, TOTAL_POKEMON_COUNT } from '../constants/constants.ts';
 
-export default function HomePage() {
+import { ITEMS_PER_PAGE, TOTAL_POKEMON_COUNT } from '../constants/constants';
+
+import type { PokemonBase } from '../types/types';
+
+type Props = {
+  initialData: PokemonBase[];
+  initialPage: number;
+  initialSearch: string;
+  initialDetailId: string | null;
+};
+
+export default function SearchResultsClient({
+  initialData,
+  initialPage,
+  initialSearch,
+  initialDetailId,
+}: Props) {
   const t = useTranslations('homePage');
-  const detailPanelRef = useRef<HTMLDivElement>(null);
-  const searchParams = useSearchParams();
+
   const router = useRouter();
-  const currentPage = parseInt(searchParams.get('page') || '1', 10);
-  const searchQuery = searchParams.get('search') || '';
-  const totalPages = Math.ceil(TOTAL_POKEMON_COUNT / ITEMS_PER_PAGE);
-  const detailId = searchParams.get('details');
+  const searchParams = useSearchParams();
   const dispatch = useDispatch();
 
+  const detailPanelRef = useRef<HTMLDivElement>(null);
+
+  const currentPage = Number(searchParams.get('page')) || initialPage;
+
+  const searchQuery = searchParams.get('search') ?? initialSearch;
+
+  const detailId = searchParams.get('details') ?? initialDetailId;
+
+  const totalPages = Math.ceil(TOTAL_POKEMON_COUNT / ITEMS_PER_PAGE);
+
   const {
-    data: pokemons = [],
+    data: pokemonList,
     error: listError,
     isFetching: isLoadingList,
   } = useGetPokemonListQuery({
@@ -40,76 +63,93 @@ export default function HomePage() {
   });
 
   const {
-    data: pokemon,
+    data: searchedPokemon,
     error: searchError,
     isFetching: isLoadingSearch,
   } = useSearchPokemonQuery(
-    searchQuery.trim().toLowerCase() ? searchQuery : skipToken
+    searchQuery.trim() ? searchQuery.toLowerCase() : skipToken
   );
 
   const isSearching = Boolean(searchQuery);
-  const isLoading = isSearching ? isLoadingSearch : isLoadingList;
-  const error = isSearching ? searchError : listError;
-  const data = isSearching ? (pokemon ? [pokemon] : []) : pokemons;
 
-  const isNotFound = isSearching && !isLoading && !error && !pokemon;
+  const isLoading = isSearching ? isLoadingSearch : isLoadingList;
+
+  const error = isSearching ? searchError : listError;
+
+  const data = isSearching
+    ? searchedPokemon
+      ? [searchedPokemon]
+      : initialSearch
+        ? initialData
+        : []
+    : (pokemonList ?? initialData);
+
+  const isNotFound = isSearching && !isLoading && !error && !searchedPokemon;
 
   useEffect(() => {
     if (currentPage < 1 || currentPage > totalPages) {
-      const newParams = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(searchParams.toString());
 
-      newParams.set('page', currentPage < 1 ? '1' : totalPages.toString());
+      params.set('page', currentPage < 1 ? '1' : totalPages.toString());
 
-      router.replace(`?${newParams.toString()}`);
+      router.replace(`?${params.toString()}`);
     }
   }, [currentPage, totalPages, searchParams, router]);
 
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent) => {
       if (
         detailId &&
         detailPanelRef.current &&
-        !detailPanelRef.current.contains(e.target as Node) &&
-        !(e.target as HTMLElement).closest('[data-detail-trigger]') &&
-        !(e.target as HTMLElement).closest('[data-pagination]')
+        !detailPanelRef.current.contains(event.target as Node) &&
+        !(event.target as HTMLElement).closest('[data-detail-trigger]') &&
+        !(event.target as HTMLElement).closest('[data-pagination]')
       ) {
-        const newParams = new URLSearchParams(searchParams.toString());
-        newParams.delete('details');
-        router.replace(`?${newParams.toString()}`);
+        const params = new URLSearchParams(searchParams.toString());
+
+        params.delete('details');
+
+        router.replace(`?${params.toString()}`);
       }
     };
+
     if (detailId) {
       document.addEventListener('mousedown', handleClickOutside);
+
       return () =>
         document.removeEventListener('mousedown', handleClickOutside);
     }
   }, [detailId, searchParams, router]);
 
   const handleSearch = (query: string) => {
-    const trimmedQuery = query.trim();
+    const params = new URLSearchParams(searchParams.toString());
 
-    const newParams = new URLSearchParams(searchParams.toString());
-    if (trimmedQuery) {
-      newParams.set('search', trimmedQuery);
+    if (query.trim()) {
+      params.set('search', query.trim());
     } else {
-      newParams.delete('search');
+      params.delete('search');
     }
 
-    newParams.delete('details');
-    newParams.set('page', '1');
-    router.replace(`?${newParams.toString()}`);
+    params.delete('details');
+    params.set('page', '1');
+
+    router.replace(`?${params.toString()}`);
   };
 
   const handlePageChange = (newPage: number) => {
-    const newParams = new URLSearchParams();
+    const params = new URLSearchParams();
+
     if (searchQuery) {
-      newParams.set('search', searchQuery);
+      params.set('search', searchQuery);
     }
-    newParams.set('page', newPage.toString());
+
+    params.set('page', String(newPage));
+
     if (detailId) {
-      newParams.set('details', detailId);
+      params.set('details', detailId);
     }
-    router.replace(`?${newParams.toString()}`);
+
+    router.replace(`?${params.toString()}`);
   };
 
   const handleInvalidateAllData = () => {
@@ -131,12 +171,13 @@ export default function HomePage() {
         >
           {t('invalidateAllButton')}
         </button>
+
         <TestErrorButton />
       </div>
 
       <div className="flex flex-col flex-1 p-5 bg-(--bg-primary) text-(--text-primary)">
         <div className="flex flex-col gap-5">
-          {<Search key={searchQuery} onSearch={handleSearch} />}
+          <Search key={searchQuery} onSearch={handleSearch} />
 
           <div className="flex flex-1 overflow-hidden">
             <div
@@ -147,17 +188,23 @@ export default function HomePage() {
               <div className="flex justify-center">
                 <div className="flex justify-center">
                   {isLoading && <Spinner />}
+
                   {!isLoading && Boolean(error) && (
                     <div className="text-red-500 font-bold">
                       {t('errorLoading')}
                     </div>
                   )}
+
                   {!isLoading && !error && isNotFound && (
                     <div className="text-gray-500 font-semibold">
-                      {t('pokemonNotFound')} &#34;{searchQuery}&#34;
+                      {t('pokemonNotFound')}
+                      {' "'}
+                      {searchQuery}
+                      {'"'}
                     </div>
                   )}
-                  {!isLoading && !error && data?.length > 0 && (
+
+                  {!isLoading && !error && data.length > 0 && (
                     <div className="flex flex-col items-center w-full">
                       <CardList pokemon={data} />
                     </div>
@@ -178,7 +225,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {!searchQuery && data?.length > 0 ? (
+      {!searchQuery && data.length > 0 ? (
         <>
           <div className="sticky bottom-0 z-20 bg-(--brand-header) py-2">
             <Pagination
@@ -187,6 +234,7 @@ export default function HomePage() {
               onPageChange={handlePageChange}
             />
           </div>
+
           <div className="fixed left-0 right-0 bottom-11 z-10 border-t border-(--border-color) bg-gray-300 px-4 py-1 shadow-lg">
             <SelectionFlyout />
           </div>

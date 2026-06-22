@@ -1,12 +1,21 @@
-'use client';
+import SearchResultsPage from '../../components/SearchResultsPage';
 
-import { Suspense } from 'react';
-import HomePage from '../../components/HomePage';
+interface Props {
+  searchParams: Promise<{
+    page?: string;
+    search?: string;
+    details?: string;
+  }>;
+}
 
-export default function Page() {
+export default async function Page({ searchParams }: Props) {
+  const params = await searchParams;
+
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <HomePage />
-    </Suspense>
+    <SearchResultsPage
+      page={Number(params.page ?? 1)}
+      search={params.search ?? ''}
+      details={params.details}
+    />
   );
 }
